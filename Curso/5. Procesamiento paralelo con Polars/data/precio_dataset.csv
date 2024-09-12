@@ -1,0 +1,6 @@
+Producto,Region,Precio,Descuento
+Laptop,Norte,1000,0.1
+Tablet,Sur,500,0.2
+Smartphone,Este,800,0.15
+Monitor,Oeste,300,0.05
+Auriculares,Norte,150,0.25
