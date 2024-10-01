@@ -15,7 +15,7 @@ st.header('CORRESPODIENTE A ENERO DEL 2024')
 ECH_Seg_12024 = pd.read_csv('data/ECH_Seguimiento_Mes_1_2024.csv')
 
 #cargo las opciones de taps
-tabs = st.tabs(["Inicio", "Tabla", "Mapas"])
+tabs = st.tabs(["Inicio", "Tabla", "MaPas"])
 
 st.sidebar.title('Filtros')
 option_depto = st.sidebar.selectbox("Seleccione el Departamento:", ECH_Seg_12024["nom_dpto"].unique())
