@@ -1,7 +1,8 @@
 import streamlit as st
-import seaborn as sns
+#import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 import plotly.express as px
 
 st.image("data/ine.jpg", caption="", use_column_width=True)
@@ -15,14 +16,21 @@ st.header('CORRESPODIENTE A ENERO DEL 2024')
 ECH_Seg_12024 = pd.read_csv('data/ECH_Seguimiento_Mes_1_2024.csv')
 
 #cargo las opciones de taps
-tabs = st.tabs(["Inicio", "Tabla", "MaPas"])
+tabs = st.tabs(["Inicio", "Tabla", "Mapas", "Graficos"])
 
 st.sidebar.title('Filtros')
+
+# Selectbox para elegir el departamento
 option_depto = st.sidebar.selectbox("Seleccione el Departamento:", ECH_Seg_12024["nom_dpto"].unique())
-option_localidad = st.sidebar.selectbox("Seleccione el Localidad:", ECH_Seg_12024["NOM_LOC_AGR_13"].unique())
 
-df_filtrado = ECH_Seg_12024[ECH_Seg_12024['nom_dpto'] == option_depto] 
+# Filtrar el DataFrame por el departamento seleccionado para obtener las localidades disponibles
+localidades_filtradas = ECH_Seg_12024[ECH_Seg_12024['nom_dpto'] == option_depto]["NOM_LOC_AGR_13"].unique()
 
+# Selectbox para elegir la localidad según el departamento seleccionado
+option_localidad = st.sidebar.selectbox("Seleccione la Localidad:", localidades_filtradas)
+
+#df_filtrado = ECH_Seg_12024[ECH_Seg_12024['nom_dpto'] == option_depto] 
+df_filtrado = ECH_Seg_12024[(ECH_Seg_12024['nom_dpto'] == option_depto) & (ECH_Seg_12024['NOM_LOC_AGR_13'] == option_localidad)]
 
 # Contenido de la pestaña "Inicio"
 with tabs[0]: 
@@ -41,6 +49,7 @@ with tabs[0]:
     st.write('La encuesta va dirigida a la población que reside en viviendas particulares y que integra hogares particulares, por lo que quedan excluidos tanto las viviendas como los hogares colectivos (hoteles, conventos, cuarteles, hospitales). No obstante lo establecido anteriormente, se incluyen los hogares, que formando un grupo independiente, residen en estos establecimientos, como puede ser el caso de los encargados, caseros, porteros,etc.')
 # Contenido de la pestaña "Datos"
 with tabs[1]:    
+    st.subheader(f'Información filtrada para {option_depto} y {option_localidad}')
     st.write(df_filtrado)    
    
 with tabs[2]:
@@ -119,3 +128,15 @@ with tabs[2]:
         st.subheader("Departamento de Treinta y Tres")
         st.image("data/treintaytres.jfif",use_column_width=True)   
    
+with tabs[3]:
+    
+    # Generar datos aleatorios
+    x = np.linspace(0, 10, 100)
+    y = np.sin(x)
+
+    # Crear un gráfico de Matplotlib
+    plt.plot(x, y)
+    plt.title("Gráfico de Seno")
+
+    # Mostrar el gráfico en Streamlit
+    st.pyplot(plt)
