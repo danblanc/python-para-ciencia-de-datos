@@ -1,5 +1,5 @@
 import streamlit as st
-#import seaborn as sns
+import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -353,8 +353,16 @@ with tabs[1]:
     st.write(df_filtrado)   
 
 with tabs[2]:
-    st.subheader('graficos') 
-    # Gráfico de líneas
+    promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
+
+    data = pd.DataFrame({
+        'Departamentos': promedio_edad['nom_dpto'],
+        'Edad': promedio_edad['e27']
+    })   
+
+    # Gráfico de promedio de edad
+    fig_avg_price = px.line(data, x='Departamentos', y='Edad', title='Promedio de Edad por departamento')
+    st.plotly_chart(fig_avg_price)
    
    
 with tabs[3]:
