@@ -363,7 +363,7 @@ with tabs[2]:
     # Gráfico de promedio de edad
     fig_avg_price = px.line(data, x='Departamentos', y='Edad', title='Promedio de Edad por departamento')
     st.plotly_chart(fig_avg_price)
-   
+     
    
 with tabs[3]:
     if option_depto == 'Todos':
