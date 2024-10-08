@@ -6,6 +6,7 @@ import numpy as np
 import plotly.express as px
 import folium
 from streamlit_folium import st_folium
+import altair as alt
 
 
 
@@ -363,7 +364,30 @@ with tabs[2]:
     # Gráfico de promedio de edad
     fig_avg_price = px.line(data, x='Departamentos', y='Edad', title='Promedio de Edad por departamento')
     st.plotly_chart(fig_avg_price)
-     
+
+    ##########################################
+    if option_depto == 'Todos':
+        st.subheader('Seleccione el departamento para ver grafico por departamento')
+    else:    
+    # Filtra el DataFrame por el departamento seleccionado
+        df_filtrado = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"] == option_depto)] 
+
+        # Agrupa los datos por nivel educativo y edad
+        grouped = df_filtrado.groupby('NIV_EDU').size()
+    
+        # Configura el gráfico
+        st.title("Gráfico de barras por nivel educativo")
+        st.subheader(f"Departamento: {option_depto}")
+
+        # Generar el gráfico
+        fig, ax = plt.subplots(figsize=(10, 6))
+        grouped.plot(kind='bar', ax=ax)
+        ax.set_title('Número de personas por Nivel Educativo')
+        ax.set_ylabel('Cantidad')
+        ax.set_xlabel('Nivel Educativo')
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
+
    
 with tabs[3]:
     if option_depto == 'Todos':
