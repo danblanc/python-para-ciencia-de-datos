@@ -391,7 +391,12 @@ with tabs[2]:
    
 with tabs[3]:
     if option_depto == 'Todos':
-        st.subheader("Seleccione un Departamento para ver su mapa...")
+        st.subheader("Uruguay")
+        # Crear el mapa base  
+        m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+        # Renderizar el mapa en Streamlit
+        st_folium (m, width=700, height=500)  
     else:   
 
         if option_depto =='Artigas':    
