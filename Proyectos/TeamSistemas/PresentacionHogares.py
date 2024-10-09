@@ -464,4 +464,68 @@ with tabs[3]:
         else:   
             st.subheader("Departamento de Treinta y Tres")
             st.image("data/treintaytres.jfif",use_column_width=True)   
+
+
    
+ # Crear pestaña única
+tab = st.tab("Visualización")
+
+# Barra lateral de filtros
+st.sidebar.title('Filtros')
+
+# Selectbox para elegir el departamento
+option_depto = st.sidebar.selectbox("Seleccione el Departamento:", ['Todos'] + ECH_Seg_12024["nom_dpto"].unique().tolist())
+
+# Selectbox para elegir la localidad según el departamento
+if option_depto == 'Todos':
+    option_localidad = st.sidebar.selectbox("Seleccione la Localidad:", ['Todos'] + ECH_Seg_12024["NOM_LOC_AGR_13"].unique().tolist())
+else:
+    option_localidad = st.sidebar.selectbox("Seleccione la Localidad:", ['Todos'] + ECH_Seg_12024[ECH_Seg_12024['nom_dpto'] == option_depto]["NOM_LOC_AGR_13"].unique().tolist())
+
+# Filtramos los datos por departamento y localidad
+if option_depto == 'Todos':
+    region_sales_data = ECH_Seg_12024
+else:
+    region_sales_data = ECH_Seg_12024[ECH_Seg_12024['nom_dpto'] == option_depto]
+
+if option_localidad != 'Todos':
+    region_sales_data = region_sales_data[region_sales_data['NOM_LOC_AGR_13'] == option_localidad]
+
+# Contenido del tab único
+with tab[4]:
+    st.subheader(f'Información filtrada para {option_depto} y {option_localidad}')
+
+    # Mostrar la tabla con los datos filtrados
+    st.write(region_sales_data)
+
+    # Gráfico de barras: Distribución por sexo
+    st.subheader('Gráfico de barras - Distribución por Sexo')
+    
+    sex_counts = region_sales_data['e26'].value_counts()
+    plt.figure(figsize=(6, 4))
+    plt.bar(['Hombres', 'Mujeres'], sex_counts)
+    plt.title('Distribución por Sexo')
+    plt.ylabel('Cantidad de personas')
+
+    # Mostrar el gráfico de barras en Streamlit
+    st.pyplot(plt)
+
+    # Mapa interactivo usando folium
+    st.subheader(f'Mapa del departamento: {option_depto}')
+    
+    if 'latitud' in region_sales_data.columns and 'longitud' in region_sales_data.columns:
+        # Crear el mapa base centrado en Uruguay
+        m = folium.Map(location=[-33.0, -56.0], zoom_start=6)
+
+        # Agregar marcadores para cada fila en el dataset filtrado
+        for idx, row in region_sales_data.iterrows():
+            folium.Marker(
+                location=[row['latitud'], row['longitud']],
+                popup=f"{row['NOM_LOC_AGR_13']}, {row['nom_dpto']}",
+                tooltip=f"{row['NOM_LOC_AGR_13']}, {row['nom_dpto']}"
+            ).add_to(m)
+
+        # Mostrar el mapa en Streamlit
+        st_folium(m, width=700, height=500)
+    else:
+        st.write("No hay datos de coordenadas disponibles para mostrar el mapa.")
