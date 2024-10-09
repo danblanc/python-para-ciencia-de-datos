@@ -1,11 +1,12 @@
 import streamlit as st
-#import seaborn as sns
+import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import plotly.express as px
 import folium
 from streamlit_folium import st_folium
+import altair as alt
 
 
 
@@ -353,113 +354,340 @@ with tabs[1]:
     st.write(df_filtrado)   
 
 with tabs[2]:
+    promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
+
+    data = pd.DataFrame({
+        'Departamentos': promedio_edad['nom_dpto'],
+        'Edad': promedio_edad['e27']
+    })   
+
+    # Gráfico de promedio de edad
+    fig_avg_price = px.line(data, x='Departamentos', y='Edad', title='Promedio de Edad por departamento')
+    st.plotly_chart(fig_avg_price)
+
+    ##########################################
+    if option_depto == 'Todos':
+        st.subheader('Seleccione el departamento para ver grafico por departamento')
+    else:    
+    # Filtra el DataFrame por el departamento seleccionado
+        df_filtrado = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"] == option_depto)] 
+
+        # Agrupa los datos por nivel educativo y edad
+        grouped = df_filtrado.groupby('NIV_EDU').size()
     
-    # Generar datos aleatorios
-    x = np.linspace(0, 10, 100)
-    y = np.sin(x)
+        # Configura el gráfico
+        st.title("Gráfico de barras por nivel educativo")
+        st.subheader(f"Departamento: {option_depto}")
 
-    # Crear un gráfico de Matplotlib
-    plt.plot(x, y)
-    plt.title("Gráfico de Seno")
+        # Generar el gráfico
+        fig, ax = plt.subplots(figsize=(10, 6))
+        grouped.plot(kind='bar', ax=ax)
+        ax.set_title('Número de personas por Nivel Educativo')
+        ax.set_ylabel('Cantidad')
+        ax.set_xlabel('Nivel Educativo')
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
 
-    # Mostrar el gráfico en Streamlit
-    st.pyplot(plt)     
    
 with tabs[3]:
     if option_depto == 'Todos':
-        st.subheader("Seleccione un Departamento para ver su mapa...")
+        st.subheader("Uruguay")
+        # Crear el mapa base  
+        m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+        # Renderizar el mapa en Streamlit
+        st_folium (m, width=700, height=500)  
     else:   
 
         if option_depto =='Artigas':    
             st.subheader("Departamento de Artigas")
 
-             # Crear el mapa base
-    #m = folium.Map(location=[-33.45, -70.65], zoom_start=4)  # Ubicación genérica
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
 
-    # cargo los mapas
-    #region_sales_data = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"].unique())]
-    
-    #for idx, option_depto in region_sales_data.iterrows():
-     #   folium.Marker(
-      #      location=[-33.45 + idx * 0.1, -70.65 + idx * 0.1],  # Simular diferentes posiciones
-       #     popup= option_depto,
-       
-        #).add_to(m)
+            # cargo los mapas
+            folium.Marker(
+                location=[-30.4, -56.46667],  # Simular diferentes posiciones
+                popup='Artigas, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
 
-    # Renderizar el mapa en Streamlit
-    #st_folium (m, width=700, height=500)
-
-
-
-            #st.image("data/artigas.jpg",use_column_width=True)        
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)
+                 
     
         elif option_depto == 'Canelones':  
             st.subheader("Departamento de Canelones:")
-            st.image("data/canelones.jfif",use_column_width=True)
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-34.52278, -56.27778],  # Simular diferentes posiciones
+                popup='Canelones, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)
         
         elif option_depto == 'Cerro Largo':   
             st.subheader("Departamento de Cerro Largo")
-            st.image("data/cerroLargo.jfif",use_column_width=True)
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-33.02940, -55.35351],  # Simular diferentes posiciones
+                popup='Cerro Largo, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)
 
         elif option_depto == 'Colonia':   
             st.subheader("Departamento de Colonia")
-            st.image("data/colonia.jfif",use_column_width=True)   
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-34.4626200, -57.8397600],  # Simular diferentes posiciones
+                popup='Colonia, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500) 
 
         elif option_depto == 'Durazno':   
             st.subheader("Departamento de Durazno")
-            st.image("data/durazno.jfif",use_column_width=True) 
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-33.38056, -56.52361],  # Simular diferentes posiciones
+                popup='Durazno, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500) 
 
         elif option_depto == 'Flores':   
             st.subheader("Departamento de Flores")
-            st.image("data/flores.jfif",use_column_width=True)   
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-33.583333, -56.833333],  # Simular diferentes posiciones
+                popup='Flores, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)   
 
         elif option_depto == 'Florida':   
             st.subheader("Departamento de Florida")
-            st.image("data/florida.jfif",use_column_width=True)    
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-34.09556, -56.21417],  # Simular diferentes posiciones
+                popup='Florida, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)    
 
         elif option_depto == 'Lavalleja':   
             st.subheader("Departamento de Lavalleja")
-            st.image("data/lavalleja.jfif",use_column_width=True)   
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-33.997196, -54.999224],  # Simular diferentes posiciones
+                popup='Lavalleja, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)   
 
         elif option_depto == 'Maldonado':   
             st.subheader("Departamento de Maldonado")
-            st.image("data/maldonado.jfif",use_column_width=True)   
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-34.908716, -54.958272],  # Simular diferentes posiciones
+                popup='Maldonado, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)  
 
         elif option_depto == 'Montevideo':   
             st.subheader("Departamento de Montevideo")
-            st.image("data/montevideo.jfif",use_column_width=True)  
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-34.90328, -56.18816],  # Simular diferentes posiciones
+                popup='Montevideo, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)  
 
         elif option_depto == 'Paysandú':   
             st.subheader("Departamento de Paysandú")
-            st.image("data/paysandu.jfif",use_column_width=True)    
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-32.3171, -58.08072],  # Simular diferentes posiciones
+                popup='Paysandú, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)   
 
         elif option_depto == 'Río Negro':   
             st.subheader("Departamento de Río Negro")
-            st.image("data/rioNegro.jfif",use_column_width=True)   
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-32.725742, -57.387578],  # Simular diferentes posiciones
+                popup='Río Negro, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)
 
         elif option_depto == 'Rivera':   
             st.subheader("Departamento de Rivera")
-            st.image("data/rivera.jfif",use_column_width=True)   
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-30.90534, -55.55076],  # Simular diferentes posiciones
+                popup='Rivera, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500) 
 
         elif option_depto == 'Rocha':   
             st.subheader("Departamento de Rocha")
-            st.image("data/rocha.jfif",use_column_width=True) 
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-34, -54],  # Simular diferentes posiciones
+                popup='Rocha, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)
 
         elif option_depto == 'Salto':   
             st.subheader("Departamento de Salto")
-            st.image("data/salto.jfif",use_column_width=True)    
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-31.38333, -57.96667],  # Simular diferentes posiciones
+                popup='Salto, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)   
 
         elif option_depto == 'San José':   
             st.subheader("Departamento de San José")
-            st.image("data/sanJose.jfif",use_column_width=True) 
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-34.455, -56.616944],  # Simular diferentes posiciones
+                popup='San José, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)
 
         elif option_depto == 'Soriano':   
             st.subheader("Departamento de Soriano")
-            st.image("data/soriano.jfif",use_column_width=True)  
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-33.492127, -57.78931],  # Simular diferentes posiciones
+                popup='Soriano, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)
 
         elif option_depto == 'Tacuarembó':   
             st.subheader("Departamento de Tacuarembó")
-            st.image("data/tacuarembo.jfif",use_column_width=True)                                     
+             # Crear el mapa base  
+            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+
+            # cargo los mapas
+            folium.Marker(
+                location=[-31.71694, -55.98111],  # Simular diferentes posiciones
+                popup='Tacuarembó, Uruguay',
+                icon=folium.Icon(color='blue')
+        
+            ).add_to(m)
+
+            # Renderizar el mapa en Streamlit
+            st_folium (m, width=700, height=500)                                     
 
         else:   
             st.subheader("Departamento de Treinta y Tres")
