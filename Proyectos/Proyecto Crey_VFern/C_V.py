@@ -8,3 +8,17 @@ per_cat = pd.read_csv('C:/Users/macar/Desktop/python-para-ciencia-de-datos/per_c
 
 
 st.title('ANÁLISIS DE CATASTRO Y PERMISOS DE OBRA DE LA IMM')
+
+tab1, tab2, tab3 = st.tabs(["CATASTRO", "PERMISOS", "CATASTRO_PERMISOS"])
+
+with tab1:
+    st.header("DESCRIPCIÓN DE CATASTRO")
+    st.write("...")
+
+with tab2:
+    st.header("DESCRIPCIÓN DE PERMISOS")
+    st.write("...")
+
+with tab3:
+    st.header("CATASTRO_PERMISOS")
+    st.write("...")
