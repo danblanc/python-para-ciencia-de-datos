@@ -202,4 +202,5 @@ conteo_codreg = per_cat.groupby('cod_reg').size().reset_index(name='cantidad_exp
 
 conteo_codreg
 
+st.title('ANÁLISIS DE CATASTRO Y PERMISOS DE OBRA DE LA IMM')
 
