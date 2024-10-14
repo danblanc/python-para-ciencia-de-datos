@@ -1,9 +1,4 @@
-## Proyecto Final
-**Curso: **
-Python para Ciencia de Datos**
-**Equipo: ** 
-Carlos Rodriguez
-Edinson Alvite
+# Proyecto Final - Curso: Python para Ciencia de Datos
 
 ## Problema a resolver
 Búsqueda e identificación de inconsistencias en variaciones y/o incidencias de precios luego de procesado el cálculo mensual y/o semanal
@@ -15,3 +10,7 @@ Tablas con información desagregada de números Indice, Variaciones e Incidencia
 ## La solución planteada
 La solución consiste en un dashboard que incluye una serie de filtros temporales y categorizados. Estos filtros permiten generar dos tipos de visualización: una salida en forma de tabla y otra en formato gráfico.
 Al realizar diferentes combinaciones de filtros, es posible comparar información y detectar inconsistencias en variaciones o incidencias entre las distintas categorías tabuladas y graficadas.
+
+### Equipo de Poryecto
+Carlos Rodriguez
+Edinson Alvite
