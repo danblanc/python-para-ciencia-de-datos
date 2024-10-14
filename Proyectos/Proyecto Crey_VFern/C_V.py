@@ -30,7 +30,7 @@ dtypes = {
 }
 
 # Leer el archivo CSV y asignar los nombres a las columnas
-P_Urbanos = pd.read_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/DatosAbiertosDNC(2024-09)/Padrones Urbanos.csv',
+P_Urbanos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/DatosAbiertosDNC(2024-09)/Padrones Urbanos.csv',
 sep=',', encoding='cp1252', header=None, names=Variables, dtype={4: str, 5: str}  )
 
 # Mostrar las primeras filas del archivo
@@ -66,7 +66,7 @@ resultado_cat_per = Cat.groupby('anio').size().reset_index(name='cantidad_regist
 # %%
 #Permisos Intendencia Montevideo
 # Leer el archivo CSV y asignar los nombres a las columnas
-Permisos = pd.read_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/permisos_construccion.csv', sep=';')
+Permisos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/permisos_construccion.csv', sep=';')
 
 Permisos.rename(columns={'padron': 'pad'}, inplace=True)
 # Mostrar las primeras filas del archivo
