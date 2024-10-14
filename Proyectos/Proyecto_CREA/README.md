@@ -8,3 +8,7 @@ Tablas con información desagregada de números Indice, Variaciones e Incidencia
 # La solución planteada
 La solución consiste en un dashboard que incluye una serie de filtros temporales y categorizados. Estos filtros permiten generar dos tipos de visualización: una salida en forma de tabla y otra en formato gráfico.
 Al realizar diferentes combinaciones de filtros, es posible comparar información y detectar inconsistencias en variaciones o incidencias entre las distintas categorías tabuladas y graficadas.
+
+## Equipo del Proyecto
+    Carlos Rodriguez
+    Edinson Alvite
