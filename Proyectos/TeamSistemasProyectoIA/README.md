@@ -55,6 +55,6 @@ La solución consiste en un chatbot inteligente que tiene la capacidad de proces
 Este enfoque integral no solo optimiza la consulta de información, sino que también mejora la eficiencia de los entrevistadores en la ECH al proporcionar respuestas inmediatas y contextualizadas basadas en los manuales operativos.
 
 ## 6. Integrantes del equipo
-- Rodrigo Pérez: Responsable de la implementación de la tecnología Text-to-Speech (TTS) y la interfaz de usuario.
-- Diego Masiello: Desarrollo de la funcionalidad de carga y lectura de archivos PDF, además de la extracción de datos clave.
-- Martín Filippini: Gestión del historial de conversaciones, pruebas de accesibilidad y validación del sistema.
+- Rodrigo Pérez
+- Diego Masiello
+- Martín Filippini
