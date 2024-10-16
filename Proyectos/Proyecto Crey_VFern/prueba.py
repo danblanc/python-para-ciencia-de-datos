@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import contextily as ctx
 
 # Ruta al archivo .zip que contiene los shapefiles
-zip_path = 'C:/Users/vfernand/Desktop/archivos proyecto PYTHON/paisurbano_shp.zip'
+zip_path = 'C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Otros/barrios ine.zip'
 
 # Crear pestañas en Streamlit
 tab1, tab2 = st.tabs(["Mapa de Polígonos", "Información del GeoDataFrame"])

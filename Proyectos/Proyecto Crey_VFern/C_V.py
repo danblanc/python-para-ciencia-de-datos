@@ -9,6 +9,17 @@ import geopandas as gpd
 import contextily as ctx
 
 
+import pandas as pd
+import numpy as np
+import streamlit as st
+import matplotlib.pyplot as plt
+import seaborn as sns
+import altair as alt
+import plotly.express as px
+import geopandas as gpd
+import contextily as ctx
+
+
 # Definir los nombres de las columnas
 Variables= ['cod_reg', 'cod_dep', 'cod_loc', 'pad', 'block', 'EP', 'uni', 'sup_predio','sup_edificada', 'V_cat_terreno',
             'V_cat_mejoras',  'V_cat_total', 'V_impuestos', 'Fecha_UDJ', 'Vigencia_UDJ']  
@@ -36,6 +47,8 @@ dtypes = {
 P_Urbanos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/DatosAbiertosDNC(2024-09)/Padrones Urbanos.csv',
 sep=',', encoding='cp1252', header=None, names=Variables, dtype={4: str, 5: str}  )
 
+Dic_Cat = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables catastro.csv', sep=';', encoding='latin1')
+
 # Mostrar las primeras filas del archivo
 P_Urbanos.head(8)
 
@@ -48,9 +61,6 @@ filtro_dep.head()
 # Eliminar los apartamentos duplicados y quedarte solo con un registro por padrón
 filtro_dep = filtro_dep.drop_duplicates(subset='pad').reset_index(drop=True)
 
-# Mostrar el DataFrame filtrado
-filtro_dep.head()
-
 # Reemplazar cadenas vacías o '/  /' por NaN
 filtro_dep['Fecha_UDJ'] = filtro_dep['Fecha_UDJ'].replace(['', '/  /'], pd.NA)
 
@@ -62,17 +72,18 @@ filtro_dep['dia'] = filtro_dep['dia'].astype('Int64')  # 'Int64' permite valores
 filtro_dep['mes'] = filtro_dep['mes'].astype('Int64')
 filtro_dep['anio'] = filtro_dep['anio'].astype('Int64')
 
-# Mostrar el DataFrame resultante
-filtro_dep.head()
+#filtro registros anteriores a 1997
+filtro_dep = filtro_dep[filtro_dep['anio'] >= 1997]
 
-resultado_Cat_Per = filtro_dep[filtro_dep['anio'] >= 1997]
+#Agrupo por anio
+resultado_Cat_Per=filtro_dep.groupby(['anio']).size().reset_index(name ='Cantidad')
 
-Dic_Cat = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables catastro.csv', sep=';', encoding='latin1')
 
 # %%
 #Permisos Intendencia Montevideo
 # Leer el archivo CSV y asignar los nombres a las columnas
 Permisos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/permisos_construccion.csv', sep=';')
+Dic_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables permisos.csv', sep=';', encoding='latin1')
 
 Permisos.rename(columns={'padron': 'pad'}, inplace=True)
 # Mostrar las primeras filas del archivo
@@ -80,8 +91,6 @@ Permisos.head()
 
 # Ver los tipos de datos de cada columna
 tipos_datos = Permisos.dtypes
-
-Dic_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables permisos.csv', sep=';', encoding='latin1')
 
 # Mostrar los tipos de datos
 print(tipos_datos)
@@ -101,34 +110,15 @@ p_sin_duplicados = Permisos_ordenado.drop_duplicates(subset=['pad','anio','mes']
 
 p_sin_duplicados.head(15)
 
-# Contar cuántos registros hay por 'anio' y 'mes'
-resultado = p_sin_duplicados.groupby(['anio', 'mes']).size().reset_index(name ='conteo_destino')
-
-# Mostrar el resultado
-print(resultado)
-
 # Contar la cantidad de registros por año
-p_conteo_por_anio = p_sin_duplicados.groupby('anio').size().reset_index(name='Cantidad')
-p_conteo_por_anio = p_conteo_por_anio[p_conteo_por_anio['anio'] >= 1997]
-
-print(p_conteo_por_anio)
-
-# Supongamos que 'resultado' es tu DataFrame que contiene los conteos
-# Calcular la suma total de 'conteo_destino'
-suma_conteo_destino = resultado['conteo_destino'].sum()
-
-# Mostrar la suma total
-print(f"Suma total de conteo_destino: {suma_conteo_destino}")
+resultado_Per_Cat = p_sin_duplicados.groupby('anio').size().reset_index(name='Cantidad')
 
 # %%
 # Machear los DataFrames usando un left join
-cat_per = pd.merge(resultado_Cat_Per, Permisos, on=['anio','mes','pad'], how='left')
+cat_per = pd.merge(filtro_dep, Permisos, on=['anio','mes','pad'], how='left')
 
 # Machear los DataFrames usando un left join
-per_cat = pd.merge(p_sin_duplicados,resultado_Cat_Per, on=['anio','mes','pad'], how='left')
-
-# Contar cuántos registros hay por 'anio' y 'mes'
-resultado_per_cat = per_cat.groupby(['anio']).size().reset_index(name ='Cantidad')
+per_cat = pd.merge(p_sin_duplicados,filtro_dep, on=['anio','mes','pad'], how='left')
 
 
 # %%
@@ -139,6 +129,7 @@ resultado_per_cat = per_cat.groupby(['anio']).size().reset_index(name ='Cantidad
 
 # Leer el archivo CSV 
 Cat_Permisos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
+Dic_Cat_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
 
 Cat_Permisos.head()
 
@@ -157,11 +148,8 @@ Cat_Permisos = Cat_Permisos.rename(columns={'ANIO_APRO': 'anio'})
 tipos_datos = Cat_Permisos.dtypes
 print(tipos_datos)
 
-Dic_Cat_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
-
-# Contar la cantidad de registros por año
+## Contar la cantidad de registros por año
 resultado_Cat_Permisos = Cat_Permisos.groupby('anio').size().reset_index(name='Cantidad')
-
 
 #Recodificar destinos
 mapeo_DSC_DESTIN = {
@@ -184,13 +172,20 @@ mapeo_DSC_DESTIN = {
 
 Cat_Permisos['Nuevo_Destino'] = Cat_Permisos['DSC_DESTIN'].map(mapeo_DSC_DESTIN)
 
+#Recodificar destinos
+mapeo_DSC_REGIME = {
+    'Común': 'Común',
+    'Incorporaci??n': 'Propiedad Horizontal',
+    'Propiedad Horizontal' : 'Propiedad Horizontal',
+    'Desconocido': 'Sin codigo de régimen'         
+}
+
+Cat_Permisos['DSC_REGIME'] = Cat_Permisos['DSC_REGIME'].map(mapeo_DSC_REGIME)
+
+Cat_Permisos['Cantidad'] = 1
 
 
-print(Cat_Permisos['Nuevo_Destino'].unique())
-
-grafico_1=Cat_Permisos.groupby(['anio','MES_APRO','DSC_REGIME']).size().reset_index(name='cantidad_registros')
-
-print(grafico_1)
+Cat_Permisos_agrupado = Cat_Permisos.groupby(['anio','DSC_REGIME']).size().reset_index(name='Cantidad')
 
 # %%
 # Colocar la imagen en el encabezado
@@ -205,14 +200,14 @@ st.sidebar.subheader('Permisos: Permisos solicitados y aprobados por padrón y s
 st.sidebar.subheader('Cat_Per: Permisos solicitados y aprobados con información de catastro. https://intgis.montevideo.gub.uy/sit/php/common/datos/generar_zip2.php?nom_tab=v_mdg_parcelas_geom&tipo=gis')
 
 # Creo las tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs([':skin-tone-6: Bases de datos', 'Análisis por año' , 'Mapa', 'otro', 'otro2'])
+tab1, tab2, tab3, tab4, tab5 = st.tabs([':skin-tone-6: Bases de datos', 'Análisis por año' , 'Mapa', ':bar_chart: Régimen', 'otro2'])
 
 with tab1:
     st.header('Base de Datos')
     st.subheader('Pueden descargarse las base de datos y diccionarios de ambas bases.')
     
     # Crear un selectbox en la primera pestaña
-    opcion1 = st.selectbox('Selecciona una opción:', ['Catastro', 'Permisos', 'Cat_Per'])
+    opcion1 = st.selectbox('Selecciona una opción:', ['Catastro', 'Permisos', 'Cat_Per_IM'])
     st.write(f'Has seleccionado: {opcion1}')
     
         # Mostrar la base de datos correspondiente
@@ -226,7 +221,7 @@ with tab1:
         st.subheader("Diccionario de Variables - Permisos")
         st.write(Dic_Per)  # Mostrar el diccionario de variables de Catastro
         
-    elif opcion1 == "Cat_Per":
+    elif opcion1 == "Cat_Per_IM":
         st.dataframe(Cat_Permisos)  # Mostrar la base de datos de Cat_Permisos
         st.subheader("Diccionario de Variables - Cat_Permisos")
         st.write(Dic_Cat_Per)  # Mostrar el diccionario de variables de Cat_Permisos
@@ -244,7 +239,7 @@ with tab2:
 
     with col2:
         st.subheader("Permisos")
-        st.dataframe(resultado_per_cat)  # Mostrar el DataFrame de Permisos en la segunda columna
+        st.dataframe(resultado_Per_Cat)  # Mostrar el DataFrame de Permisos en la segunda columna
  
     with col3:
         st.subheader("Cat_Permisos")
@@ -256,33 +251,27 @@ with tab2:
 # Pestaña 3: Mapa
     with tab3:
         st.subheader('Mapa')
-       
+
+    
      
 
 #Pestaña 4: Gráfico por región
 with tab4:
-    st.header('📈 Destinos')
+    st.header(':bar_chart: Régimen')
     
-    # Agrupar solo por 'ANIO_APRO' y 'DSC_REGIME' para sumar la cantidad de registros por año y régimen
-    grafico_agrupado = grafico_1.groupby(['anio', 'MES APRO','DSC_REGIME'])['cantidad_registros'].sum().unstack()
+ 
+    # Crear gráfico de barras con Plotly
+    fig = px.bar(Cat_Permisos_agrupado, 
+                 x='anio', 
+                 y='Cantidad', 
+                 color='DSC_REGIME', 
+                 title='Cantidad de Registros por Año',
+                 labels={'Cantidad': 'Cantidad', 'anio': 'Año'},
+                 barmode='group')  # Agrupar las barras por año
 
-    # Crear el gráfico de líneas
-    plt.figure(figsize=(10, 6))
-
-    # Dibujar una línea para cada régimen
-    for column in grafico_agrupado.columns:
-        plt.plot(grafico_agrupado.index, grafico_agrupado[column], marker='o', label=column)
-
-    # Añadir títulos y etiquetas
-    plt.title('Cantidad de Permisos por Año según Régimen')
-    plt.xlabel('Año')
-    plt.ylabel('Cantidad de Registros')
-    plt.legend(title='Régimen')
-    plt.grid(True)
-
-    # Mostrar el gráfico
-    plt.show()
-    
+    # Mostrar el gráfico en Streamlit
+    st.plotly_chart(fig)
+       
   
     
     
