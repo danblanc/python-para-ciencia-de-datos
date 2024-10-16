@@ -4,10 +4,10 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 import altair as alt
-import plotly.express as  px
+import plotly.express as px
 import geopandas as gpd
-import folium
-from folium import GeoJson
+import contextily as ctx
+
 
 # Definir los nombres de las columnas
 Variables= ['cod_reg', 'cod_dep', 'cod_loc', 'pad', 'block', 'EP', 'uni', 'sup_predio','sup_edificada', 'V_cat_terreno',
@@ -40,32 +40,34 @@ sep=',', encoding='cp1252', header=None, names=Variables, dtype={4: str, 5: str}
 P_Urbanos.head(8)
 
 # Filtrar filas donde 'cod_dep' es igual a 'V' que es Montevideo
-Cat = P_Urbanos[P_Urbanos['cod_dep'] == 'V']
+filtro_dep = P_Urbanos[P_Urbanos['cod_dep'] == 'V']
+
+# Mostrar el DataFrame filtrado
+filtro_dep.head()
 
 # Eliminar los apartamentos duplicados y quedarte solo con un registro por padrón
-Cat = Cat.drop_duplicates(subset='pad').reset_index(drop=True)
+filtro_dep = filtro_dep.drop_duplicates(subset='pad').reset_index(drop=True)
+
+# Mostrar el DataFrame filtrado
+filtro_dep.head()
 
 # Reemplazar cadenas vacías o '/  /' por NaN
-Cat['Fecha_UDJ'] = Cat['Fecha_UDJ'].replace(['', '/  /'], pd.NA)
+filtro_dep['Fecha_UDJ'] = filtro_dep['Fecha_UDJ'].replace(['', '/  /'], pd.NA)
 
 # Separar la columna 'Fecha' en tres nuevas columnas, manejando valores NaN
-Cat[['dia', 'mes', 'anio']] = Cat['Fecha_UDJ'].str.split('/', expand=True)
+filtro_dep[['dia', 'mes', 'anio']] = filtro_dep['Fecha_UDJ'].str.split('/', expand=True)
 
 # Convertir las nuevas columnas a tipo entero, usando fillna para evitar errores
-Cat['dia'] = Cat['dia'].astype('Int64')  # 'Int64' permite valores NA
-Cat['mes'] = Cat['mes'].astype('Int64')
-Cat['anio'] = Cat['anio'].astype('Int64')
+filtro_dep['dia'] = filtro_dep['dia'].astype('Int64')  # 'Int64' permite valores NA
+filtro_dep['mes'] = filtro_dep['mes'].astype('Int64')
+filtro_dep['anio'] = filtro_dep['anio'].astype('Int64')
 
 # Mostrar el DataFrame resultante
-Cat.head()
+filtro_dep.head()
 
-Cat = Cat[Cat['anio'] >= 1997]
+Cat = filtro_dep[filtro_dep['anio'] >= 1997]
 
 Dic_Cat = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables catastro.csv', sep=';', encoding='latin1')
-
-# Contar la cantidad de registros por año
-resultado_cat_per = Cat.groupby('anio').size().reset_index(name='Cantidad')
-resultado_cat_per = resultado_cat_per[resultado_cat_per['anio'] >= 1997]
 
 # %%
 #Permisos Intendencia Montevideo
@@ -224,8 +226,29 @@ with tab2:
     
 
 # Pestaña 3: Mapa
-with tab3:
-    st.subheader('Mapa')
+    with tab3:
+        st.subheader('Mapa')
+
+    # Ruta al archivo .zip que contiene los shapefiles
+    zip_path = 'C:/Users/vfernand/Desktop/archivos proyecto PYTHON/paisurbano_shp.zip'
+
+    # Cargar el shapefile desde el archivo .zip
+    gdf = gpd.read_file(f'zip://{zip_path}')
+
+    # Mostrar las primeras filas para verificar la carga de los datos
+    print(gdf)
+
+    # Crear un mapa simple de los polígonos
+    gdf.plot(edgecolor='black', facecolor='lightblue')
+
+    # Agregar título y etiquetas
+    plt.title('Mapa de Polígonos desde un Shapefile comprimido en ZIP')
+    plt.xlabel('Longitud')
+    plt.ylabel('Latitud')
+
+    # Mostrar el mapa
+    plt.show()
+       
  
  
       
@@ -233,6 +256,8 @@ with tab3:
 #Pestaña 4: Gráfico por región
 with tab4:
     st.header('📈 Región')
+    
+    
     
     
     

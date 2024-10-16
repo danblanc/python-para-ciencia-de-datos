@@ -198,9 +198,30 @@ cat_per.to_csv('C:/Users/macar/Desktop/python-para-ciencia-de-datos/DatosAbierto
 per_cat.to_csv('C:/Users/macar/Desktop/python-para-ciencia-de-datos/DatosAbiertosDNC(2024-09)/per_cat.csv', index=False)
 
 # %%
-conteo_codreg = per_cat.groupby('cod_reg').size().reset_index(name='cantidad_expedientes')
+conteo_codreg = per_cat.groupby('cod_reg').size().reset_index(name='Cantidad')
 
 conteo_codreg
 
-st.title('ANÁLISIS DE CATASTRO Y PERMISOS DE OBRA DE LA IMM')
 
+# Leer el archivo CSV de la intendencia con catastro
+Cat_Permisos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
+
+Cat_Permisos.head()
+
+# Reemplazar las comas por puntos o eliminar las comas si los números son enteros
+Cat_Permisos['AREA_EDIF'] = Cat_Permisos['AREA_EDIF'].str.replace(',', '').astype(float)
+
+# Convertir la columna a enteros
+Cat_Permisos['AREA_EDIF'] = Cat_Permisos['AREA_EDIF'].astype('Int64')
+
+# Ver los tipos de datos de cada columna
+tipos_datos = Cat_Permisos.dtypes
+print(tipos_datos)
+
+Dic_Cat_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
+
+Cat_Permisos = Cat_Permisos.rename(columns={'ANIO_APRO': 'anio'})
+
+# Contar la cantidad de registros por año
+resultado_Cat_Permisos = Cat_Permisos.groupby('anio').size().reset_index(name='Cantidad')
+resultado_Cat_Permisos = resultado_Cat_Permisos[resultado_Cat_Permisos['anio'] >= 1997]
