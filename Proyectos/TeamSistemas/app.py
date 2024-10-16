@@ -374,291 +374,559 @@ with tabs[1]:
 
 # Contenido de la pestaña "Graficos"
 with tabs[2]:
-    # Calcular el promedio de edad por departamento
-     # Calcular el promedio de edad por departamento
-    promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
 
-###############
-    if option_depto == 'Todos':
+      # Crear subtabs dentro de Tab 1
+    st.subheader("GRÁFICOS Y ANÁLISIS DE LOS DATOS")
+    subtab = st.radio("", 
+                      ["2.1 - Promedio de Edad para todos los departamentos", 
+                       "2.2 - Promedio de Edad por departamentos",
+                       "2.3 - Nivel Educativo", 
+                       "2.4 - Distribución de ascendencia", 
+                       "2.5 - Composición de los hogares", 
+                       "2.6 - Todos los gráficos"])
+
+    if subtab == "2.1 - Promedio de Edad para todos los departamentos":
+        # Gráfico de promedio de edad
         promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
 
-    else:
-        df_filtrado = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"] == option_depto)] 
-        promedio_edad = df_filtrado.groupby('nom_dpto')['e27'].mean().reset_index()
+        data = pd.DataFrame({
+            'Departamentos': promedio_edad['nom_dpto'],
+            'Edad': promedio_edad['e27']
+        })
 
-###############
+        fig_avg_price = px.line(data, x='Departamentos', y='Edad', title='Promedio de Edad para todos los departamento')
+        st.plotly_chart(fig_avg_price)
 
+    elif subtab == "2.2 - Promedio de Edad por departamentos":
 
+            # Calcular el promedio de edad por departamento
+        # Calcular el promedio de edad por departamento
+        promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
 
-    # Calcular el promedio general de edad y la desviación estándar
-    promedio_general = ECH_Seg_12024['e27'].mean()
-    desviacion_estandar = ECH_Seg_12024['e27'].std()
+    ###############
+        if option_depto == 'Todos':
+            promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
 
-    # Preparar los datos para el gráfico
-    data = pd.DataFrame({
-        'Departamentos': promedio_edad['nom_dpto'],
-        'Edad': promedio_edad['e27']
-    })
+        else:
+            df_filtrado = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"] == option_depto)] 
+            promedio_edad = df_filtrado.groupby('nom_dpto')['e27'].mean().reset_index()
 
-    dataTodos = pd.DataFrame({
-        'Departamentos': ECH_Seg_12024['nom_dpto'],
-        'Edad': ECH_Seg_12024['e27']
-    })
+    ###############
 
-    # Crear el gráfico de línea con Plotly Express
-    fig_avg_price = px.line(
-        data, 
-        x='Departamentos', 
-        y='Edad', 
-        title='Promedio de Edad por Departamento',
-        labels={'Edad': 'Edad Promedio', 'Departamentos': 'Departamentos'}
-    )
+        # Calcular el promedio general de edad y la desviación estándar
+        promedio_general = ECH_Seg_12024['e27'].mean()
+        desviacion_estandar = ECH_Seg_12024['e27'].std()
 
-    # Añadir una línea de referencia para el promedio general
-    fig_avg_price.add_hline(
-        y=promedio_general, 
-        line_dash="dash", 
-        line_color="red", 
-        annotation_text="Promedio General", 
-        annotation_position="bottom right"
-    )
+        # Preparar los datos para el gráfico
+        data = pd.DataFrame({
+            'Departamentos': promedio_edad['nom_dpto'],
+            'Edad': promedio_edad['e27']
+        })
 
-    # Añadir un área de sombreado para la desviación estándar
-    fig_avg_price.add_shape(
-        type="rect",
-        x0=0, 
-        x1=1, 
-        y0=promedio_general - desviacion_estandar, 
-        y1=promedio_general + desviacion_estandar,
-        line=dict(color="LightSeaGreen", width=0),
-        fillcolor="LightSeaGreen",
-        opacity=0.2,
-        layer="below",
-        xref="paper",
-        yref="y"
-    )
-    fig_avg_price.add_annotation(
-        text="Desviación Estándar", 
-        xref="paper", yref="y",
-        x=0.99, y=promedio_general + desviacion_estandar, showarrow=False,
-        font=dict(size=12, color="LightSeaGreen")
-    )
+        dataTodos = pd.DataFrame({
+            'Departamentos': ECH_Seg_12024['nom_dpto'],
+            'Edad': ECH_Seg_12024['e27']
+        })
 
-    # Añadir etiquetas en los puntos que muestran el valor exacto de la edad promedio
-    fig_avg_price.update_traces(
-        mode='lines+markers+text', 
-        text=data['Edad'].round(2),  # Mostrar el valor de la edad
-        textposition='top center'
-    )
+        # Crear el gráfico de línea con Plotly Express
+        fig_avg_price = px.line(
+            data, 
+            x='Departamentos', 
+            y='Edad', 
+            title='Promedio de Edad por Departamento',
+            labels={'Edad': 'Edad Promedio', 'Departamentos': 'Departamentos'}
+        )
 
-    # Personalizar colores de la línea y los puntos
-    fig_avg_price.update_traces(
-        line=dict(color='blue'),  # Color de la línea
-        marker=dict(size=8, color='blue', line=dict(width=2, color='DarkSlateGrey'))  # Personalización de los puntos
-    )
+        # Añadir una línea de referencia para el promedio general
+        fig_avg_price.add_hline(
+            y=promedio_general, 
+            line_dash="dash", 
+            line_color="red", 
+            annotation_text="Promedio General", 
+            annotation_position="bottom right"
+        )
 
-    # Ajustar los ejes y mejorar la presentación del gráfico
-    fig_avg_price.update_layout(
-        xaxis_title='Departamento',
-        yaxis_title='Edad Promedio',
-        plot_bgcolor='rgba(0,0,0,0)',  # Fondo transparente
-        paper_bgcolor='rgba(0,0,0,0)',  # Fondo transparente del papel
-        font=dict(family="Arial", size=14, color="Black")  # Estilo de fuente
-    )
+        # Añadir un área de sombreado para la desviación estándar
+        fig_avg_price.add_shape(
+            type="rect",
+            x0=0, 
+            x1=1, 
+            y0=promedio_general - desviacion_estandar, 
+            y1=promedio_general + desviacion_estandar,
+            line=dict(color="LightSeaGreen", width=0),
+            fillcolor="LightSeaGreen",
+            opacity=0.2,
+            layer="below",
+            xref="paper",
+            yref="y"
+        )
+        fig_avg_price.add_annotation(
+            text="Desviación Estándar", 
+            xref="paper", yref="y",
+            x=0.99, y=promedio_general + desviacion_estandar, showarrow=False,
+            font=dict(size=12, color="LightSeaGreen")
+        )
 
-    # Añadir interactividad avanzada con zoom y desplazamiento
-    fig_avg_price.update_layout(
-        xaxis=dict(fixedrange=False),  # Habilitar zoom en eje X
-        yaxis=dict(fixedrange=False),  # Habilitar zoom en eje Y
-    )
+        # Añadir etiquetas en los puntos que muestran el valor exacto de la edad promedio
+        fig_avg_price.update_traces(
+            mode='lines+markers+text', 
+            text=data['Edad'].round(2),  # Mostrar el valor de la edad
+            textposition='top center'
+        )
 
-    # Mostrar el gráfico en Streamlit
-    st.plotly_chart(fig_avg_price)
+        # Personalizar colores de la línea y los puntos
+        fig_avg_price.update_traces(
+            line=dict(color='blue'),  # Color de la línea
+            marker=dict(size=8, color='blue', line=dict(width=2, color='DarkSlateGrey'))  # Personalización de los puntos
+        )
 
-    # Añadir resumen estadístico de desviación estándar
-    st.subheader("Estadísticas adicionales:")
-    st.write(f"**Promedio General de Edad:** {round(promedio_general, 2)} años")
-    st.write(f"**Desviación Estándar de Edad:** {round(desviacion_estandar, 2)} años")
-    st.write(f"**Edad Promedio más alta:** {dataTodos['Edad'].max()} años ({dataTodos.loc[data['Edad'].idxmax(), 'Departamentos']})")
-    st.write(f"**Edad Promedio más baja:** {dataTodos['Edad'].min()} años ({dataTodos.loc[data['Edad'].idxmin(), 'Departamentos']})")
+        # Ajustar los ejes y mejorar la presentación del gráfico
+        fig_avg_price.update_layout(
+            xaxis_title='Departamento',
+            yaxis_title='Edad Promedio',
+            plot_bgcolor='rgba(0,0,0,0)',  # Fondo transparente
+            paper_bgcolor='rgba(0,0,0,0)',  # Fondo transparente del papel
+            font=dict(family="Arial", size=14, color="Black")  # Estilo de fuente
+        )
 
-    # Gráfico de promedio de edad
-    promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
+        # Añadir interactividad avanzada con zoom y desplazamiento
+        fig_avg_price.update_layout(
+            xaxis=dict(fixedrange=False),  # Habilitar zoom en eje X
+            yaxis=dict(fixedrange=False),  # Habilitar zoom en eje Y
+        )
 
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_avg_price)
 
-    data = pd.DataFrame({
-        'Departamentos': promedio_edad['nom_dpto'],
-        'Edad': promedio_edad['e27']
-    })
+        # Añadir resumen estadístico de desviación estándar
+        st.subheader("Estadísticas adicionales:")
+        st.write(f"**Promedio General de Edad:** {round(promedio_general, 2)} años")
+        st.write(f"**Desviación Estándar de Edad:** {round(desviacion_estandar, 2)} años")
+        st.write(f"**Edad Promedio más alta:** {dataTodos['Edad'].max()} años ({dataTodos.loc[data['Edad'].idxmax(), 'Departamentos']})")
+        st.write(f"**Edad Promedio más baja:** {dataTodos['Edad'].min()} años ({dataTodos.loc[data['Edad'].idxmin(), 'Departamentos']})")
 
-    fig_avg_price = px.line(data, x='Departamentos', y='Edad', title='Promedio de Edad para todos los departamento')
-    st.plotly_chart(fig_avg_price)
     
-    ##########################################
+         
 
-    if option_depto == 'Todos':
-        st.subheader('Seleccione el departamento para ver grafico por departamento')
-    else:    
+    elif subtab == "2.3 - Nivel Educativo":
+            if option_depto == 'Todos':                
+                df_filtrado = ECH_Seg_12024
+            else:    
+                # Filtra el DataFrame por el departamento seleccionado
+                df_filtrado = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"] == option_depto)] 
+
+            # Agrupa los datos por nivel educativo y edad
+            grouped = df_filtrado.groupby('NIV_EDU').size()
+        
+            # Configura el gráfico
+            # Mostrar título
+            st.markdown("<h1 style='text-align: center; font-size: 32px;'>Gráfico de barras por nivel educativo</h1>", unsafe_allow_html=True)
+            st.markdown(f"<h2 style='text-align: center; font-size: 24px;'>Departamento: {option_depto}</h2>", unsafe_allow_html=True)
+
+            # Agrupar datos por nivel educativo
+            grouped = df_filtrado.groupby('NIV_EDU').size().reset_index(name='count')
+
+            # Verificar si hay datos
+            if grouped.empty:
+                st.write("No hay datos disponibles para este nivel educativo.")
+            else:
+                # Verificar si los valores son válidos
+                if grouped['count'].isnull().all() or grouped['count'].sum() == 0:
+                    st.write("No hay suficientes datos para mostrar el gráfico.")
+                else:
+                    # Colores por rango
+                    num_barras = len(grouped)
+                    norm = mcolors.Normalize(vmin=grouped['count'].min(), vmax=grouped['count'].max())
+                    cmap = cm.get_cmap('coolwarm')
+
+                    # Crear la figura
+                    fig, ax = plt.subplots(figsize=(12, 6))
+
+                    # Generar gráfico de barras con colores personalizados
+                    bars = ax.bar(grouped['NIV_EDU'], grouped['count'], color=cmap(norm(grouped['count'])), edgecolor='black')
+
+                    # Títulos y etiquetas
+                    ax.set_title('Número de personas por Nivel Educativo', fontsize=20, fontweight='bold')
+                    ax.set_ylabel('Cantidad de Personas', fontsize=14)
+                    ax.set_xlabel('Nivel Educativo', fontsize=14)
+
+                    # Rotar etiquetas del eje X
+                    plt.xticks(rotation=45, ha='right')
+
+                    # Añadir valores encima de las barras con porcentaje
+                    total_personas = grouped['count'].sum()
+                    for bar in bars:
+                        height = bar.get_height()
+                        porcentaje = (height / total_personas) * 100
+                        ax.annotate(f'{int(height)} ({porcentaje:.1f}%)',
+                                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                                    xytext=(0, 5),
+                                    textcoords="offset points",
+                                    ha='center', va='bottom', fontsize=10, fontweight='bold')
+
+                    # Media
+                    media = grouped['count'].mean()
+                    ax.axhline(media, color='red', linestyle='--', linewidth=1, label=f'Media: {int(media)}')
+
+                    # Mínimo y Máximo
+                    minimo = grouped['count'].min()
+                    maximo = grouped['count'].max()
+                    ax.text(len(grouped) - 1, maximo, f'Máximo: {maximo}', color='green', fontsize=12, fontweight='bold', ha='center')
+                    ax.text(0, minimo, f'Mínimo: {minimo}', color='red', fontsize=12, fontweight='bold', ha='center')
+
+                    # Añadir leyenda
+                    ax.legend(loc='upper right')
+
+                    # Ajustar fondo del gráfico
+                    ax.set_facecolor('#f7f7f7')
+
+                    # Crear barra de colores como referencia
+                    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+                    sm.set_array([])
+                    cbar = fig.colorbar(sm, ax=ax)
+                    cbar.set_label('Cantidad de Personas', fontsize=12)
+
+                    # Mostrar el gráfico
+                    st.pyplot(fig)
+
+                    # Mostrar resumen de estadísticas
+                    st.subheader("Estadísticas clave:")
+                    st.write(f"**Total de personas:** {grouped['count'].sum()}")
+                    st.write(f"**Promedio de personas por nivel educativo:** {round(media, 2)}")
+                    st.write(f"**Nivel educativo con mayor cantidad de personas:** {grouped.loc[grouped['count'].idxmax(), 'NIV_EDU']} ({maximo})")
+                    st.write(f"**Nivel educativo con menor cantidad de personas:** {grouped.loc[grouped['count'].idxmin(), 'NIV_EDU']} ({minimo})")
+
+    elif subtab == "2.4 - Distribución de ascendencia":
+         ######grafico de torta
+        st.subheader(f"Distribución de ascendencia por el conjunto de filtros aplicados")
+
+        # Gráfico de la distribución de ascendencia
+        if not df_filtrado.empty:
+            columnas_ascendencia = ['e29_1', 'e29_2', 'e29_3', 'e29_4', 'e29_5']
+            columnas_existentes = [col for col in columnas_ascendencia if col in df_filtrado.columns]
+
+            if columnas_existentes:
+                ascendencia_totals = [df_filtrado[col].sum() for col in columnas_existentes]
+                ascendencia_labels = ['Afro o negra', 'Asiática o amarilla', 'Blanca', 'Indígena', 'Otra']
+
+                fig_ascendencia, ax = plt.subplots()
+                ax.pie(ascendencia_totals, labels=ascendencia_labels, autopct='%1.1f%%', startangle=90)
+                ax.axis('equal')
+
+                st.pyplot(fig_ascendencia)
+            else:
+                st.write("No se encontraron las columnas de ascendencia en los datos.")
+        else:
+            st.write("No hay datos disponibles para los filtros seleccionados.")
+       
+    elif subtab == "2.5 - Composición de los hogares":
+         #################
+        st.subheader(f"Composición de los hogares por departamento")
+
+        # Gráfico de barras apiladas para la composición de hogares
+        df_hogares = df_filtrado[['nom_dpto', 'd23', 'd24', 'd25']].dropna()
+
+        # Agrupar los hogares por departamento y sumar las personas mayores y menores de 14 años
+        df_hogares_grouped = df_hogares.groupby('nom_dpto').sum().reset_index()
+
+        # Crear un gráfico de barras apiladas
+        fig_hogares, ax = plt.subplots(figsize=(10, 6))
+
+        # Crear el gráfico apilado con personas mayores de 14 (D23) y menores de 14 (D24)
+        ax.bar(df_hogares_grouped['nom_dpto'], df_hogares_grouped['d23'], label='Mayores de 14 años', color='blue')
+        ax.bar(df_hogares_grouped['nom_dpto'], df_hogares_grouped['d24'], label='Menores de 14 años', color='orange', bottom=df_hogares_grouped['d23'])
+
+        # Título y etiquetas
+        ax.set_title('Composición de los hogares por departamento')
+        ax.set_xlabel('Departamento')
+        ax.set_ylabel('Número de personas')
+        ax.legend()
+
+        # Rotar las etiquetas de los departamentos en el eje x
+        plt.xticks(rotation=45)
+
+        # Mostrar el gráfico en Streamlit
+        st.pyplot(fig_hogares) 
+        #################
+    
+    elif subtab == "2.6 - Todos los gráficos":
+        
+    ####################################################################
+    ####################################################################
+
+        # Calcular el promedio de edad por departamento
+
+         # Gráfico de promedio de edad para todos los departamentos
+        promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
+
+        data = pd.DataFrame({
+            'Departamentos': promedio_edad['nom_dpto'],
+            'Edad': promedio_edad['e27']
+        })
+
+        fig_avg_price = px.line(data, x='Departamentos', y='Edad', title='Promedio de Edad para todos los departamento')
+        st.plotly_chart(fig_avg_price)        
+        ##########################################
+
+        
+        promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
+
+    ###############
+        if option_depto == 'Todos':
+            promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
+
+        else:
+            df_filtrado = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"] == option_depto)] 
+            promedio_edad = df_filtrado.groupby('nom_dpto')['e27'].mean().reset_index()
+
+    ###############
+
+
+
+        # Calcular el promedio general de edad y la desviación estándar
+        promedio_general = ECH_Seg_12024['e27'].mean()
+        desviacion_estandar = ECH_Seg_12024['e27'].std()
+
+        # Preparar los datos para el gráfico
+        data = pd.DataFrame({
+            'Departamentos': promedio_edad['nom_dpto'],
+            'Edad': promedio_edad['e27']
+        })
+
+        dataTodos = pd.DataFrame({
+            'Departamentos': ECH_Seg_12024['nom_dpto'],
+            'Edad': ECH_Seg_12024['e27']
+        })
+
+        # Crear el gráfico de línea con Plotly Express
+        fig_avg_price = px.line(
+            data, 
+            x='Departamentos', 
+            y='Edad', 
+            title='Promedio de Edad por Departamento',
+            labels={'Edad': 'Edad Promedio', 'Departamentos': 'Departamentos'}
+        )
+
+        # Añadir una línea de referencia para el promedio general
+        fig_avg_price.add_hline(
+            y=promedio_general, 
+            line_dash="dash", 
+            line_color="red", 
+            annotation_text="Promedio General", 
+            annotation_position="bottom right"
+        )
+
+        # Añadir un área de sombreado para la desviación estándar
+        fig_avg_price.add_shape(
+            type="rect",
+            x0=0, 
+            x1=1, 
+            y0=promedio_general - desviacion_estandar, 
+            y1=promedio_general + desviacion_estandar,
+            line=dict(color="LightSeaGreen", width=0),
+            fillcolor="LightSeaGreen",
+            opacity=0.2,
+            layer="below",
+            xref="paper",
+            yref="y"
+        )
+        fig_avg_price.add_annotation(
+            text="Desviación Estándar", 
+            xref="paper", yref="y",
+            x=0.99, y=promedio_general + desviacion_estandar, showarrow=False,
+            font=dict(size=12, color="LightSeaGreen")
+        )
+
+        # Añadir etiquetas en los puntos que muestran el valor exacto de la edad promedio
+        fig_avg_price.update_traces(
+            mode='lines+markers+text', 
+            text=data['Edad'].round(2),  # Mostrar el valor de la edad
+            textposition='top center'
+        )
+
+        # Personalizar colores de la línea y los puntos
+        fig_avg_price.update_traces(
+            line=dict(color='blue'),  # Color de la línea
+            marker=dict(size=8, color='blue', line=dict(width=2, color='DarkSlateGrey'))  # Personalización de los puntos
+        )
+
+        # Ajustar los ejes y mejorar la presentación del gráfico
+        fig_avg_price.update_layout(
+            xaxis_title='Departamento',
+            yaxis_title='Edad Promedio',
+            plot_bgcolor='rgba(0,0,0,0)',  # Fondo transparente
+            paper_bgcolor='rgba(0,0,0,0)',  # Fondo transparente del papel
+            font=dict(family="Arial", size=14, color="Black")  # Estilo de fuente
+        )
+
+        # Añadir interactividad avanzada con zoom y desplazamiento
+        fig_avg_price.update_layout(
+            xaxis=dict(fixedrange=False),  # Habilitar zoom en eje X
+            yaxis=dict(fixedrange=False),  # Habilitar zoom en eje Y
+        )
+
+        # Mostrar el gráfico en Streamlit
+        st.plotly_chart(fig_avg_price)
+
+        # Añadir resumen estadístico de desviación estándar
+        st.subheader("Estadísticas adicionales:")
+        st.write(f"**Promedio General de Edad:** {round(promedio_general, 2)} años")
+        st.write(f"**Desviación Estándar de Edad:** {round(desviacion_estandar, 2)} años")
+        st.write(f"**Edad Promedio más alta:** {dataTodos['Edad'].max()} años ({dataTodos.loc[data['Edad'].idxmax(), 'Departamentos']})")
+        st.write(f"**Edad Promedio más baja:** {dataTodos['Edad'].min()} años ({dataTodos.loc[data['Edad'].idxmin(), 'Departamentos']})")
+
+        if option_depto == 'Todos':
+             df_filtrado = ECH_Seg_12024
+        else:    
         # Filtra el DataFrame por el departamento seleccionado
-        df_filtrado = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"] == option_depto)] 
+            df_filtrado = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"] == option_depto)] 
 
-        # Agrupa los datos por nivel educativo y edad
+          # Agrupa los datos por nivel educativo y edad
         grouped = df_filtrado.groupby('NIV_EDU').size()
-    
-        # Configura el gráfico
-        # Mostrar título
+                
+            # Configura el gráfico
+            # Mostrar título
         st.markdown("<h1 style='text-align: center; font-size: 32px;'>Gráfico de barras por nivel educativo</h1>", unsafe_allow_html=True)
         st.markdown(f"<h2 style='text-align: center; font-size: 24px;'>Departamento: {option_depto}</h2>", unsafe_allow_html=True)
 
-        # Agrupar datos por nivel educativo
+            # Agrupar datos por nivel educativo
         grouped = df_filtrado.groupby('NIV_EDU').size().reset_index(name='count')
 
-        # Verificar si hay datos
+            # Verificar si hay datos
         if grouped.empty:
             st.write("No hay datos disponibles para este nivel educativo.")
         else:
-            # Verificar si los valores son válidos
+                        # Verificar si los valores son válidos
             if grouped['count'].isnull().all() or grouped['count'].sum() == 0:
-                st.write("No hay suficientes datos para mostrar el gráfico.")
+                   st.write("No hay suficientes datos para mostrar el gráfico.")
             else:
-                # Colores por rango
-                num_barras = len(grouped)
-                norm = mcolors.Normalize(vmin=grouped['count'].min(), vmax=grouped['count'].max())
-                cmap = cm.get_cmap('coolwarm')
+                    # Colores por rango
+                    num_barras = len(grouped)
+                    norm = mcolors.Normalize(vmin=grouped['count'].min(), vmax=grouped['count'].max())
+                    cmap = cm.get_cmap('coolwarm')
+                    # Crear la figura
+                    fig, ax = plt.subplots(figsize=(12, 6))
 
-                # Crear la figura
-                fig, ax = plt.subplots(figsize=(12, 6))
+                    # Generar gráfico de barras con colores personalizados
+                    bars = ax.bar(grouped['NIV_EDU'], grouped['count'], color=cmap(norm(grouped['count'])), edgecolor='black')
 
-                # Generar gráfico de barras con colores personalizados
-                bars = ax.bar(grouped['NIV_EDU'], grouped['count'], color=cmap(norm(grouped['count'])), edgecolor='black')
+                    # Títulos y etiquetas
+                    ax.set_title('Número de personas por Nivel Educativo', fontsize=20, fontweight='bold')
+                    ax.set_ylabel('Cantidad de Personas', fontsize=14)
+                    ax.set_xlabel('Nivel Educativo', fontsize=14)
 
-                # Títulos y etiquetas
-                ax.set_title('Número de personas por Nivel Educativo', fontsize=20, fontweight='bold')
-                ax.set_ylabel('Cantidad de Personas', fontsize=14)
-                ax.set_xlabel('Nivel Educativo', fontsize=14)
+                    # Rotar etiquetas del eje X
+                    plt.xticks(rotation=45, ha='right')
 
-                # Rotar etiquetas del eje X
-                plt.xticks(rotation=45, ha='right')
+                            # Añadir valores encima de las barras con porcentaje
+                    total_personas = grouped['count'].sum()
+                    for bar in bars:
+                        height = bar.get_height()
+                        porcentaje = (height / total_personas) * 100
+                        ax.annotate(f'{int(height)} ({porcentaje:.1f}%)',
+                        xy=(bar.get_x() + bar.get_width() / 2, height),
+                        xytext=(0, 5),
+                        textcoords="offset points",
+                        ha='center', va='bottom', fontsize=10, fontweight='bold')
 
-                # Añadir valores encima de las barras con porcentaje
-                total_personas = grouped['count'].sum()
-                for bar in bars:
-                    height = bar.get_height()
-                    porcentaje = (height / total_personas) * 100
-                    ax.annotate(f'{int(height)} ({porcentaje:.1f}%)',
-                                xy=(bar.get_x() + bar.get_width() / 2, height),
-                                xytext=(0, 5),
-                                textcoords="offset points",
-                                ha='center', va='bottom', fontsize=10, fontweight='bold')
+                    # Media
+                    media = grouped['count'].mean()
+                    ax.axhline(media, color='red', linestyle='--', linewidth=1, label=f'Media: {int(media)}')
 
-                # Media
-                media = grouped['count'].mean()
-                ax.axhline(media, color='red', linestyle='--', linewidth=1, label=f'Media: {int(media)}')
+                            # Mínimo y Máximo
+                    minimo = grouped['count'].min()
+                    maximo = grouped['count'].max()
+                    ax.text(len(grouped) - 1, maximo, f'Máximo: {maximo}', color='green', fontsize=12, fontweight='bold', ha='center')
+                    ax.text(0, minimo, f'Mínimo: {minimo}', color='red', fontsize=12, fontweight='bold', ha='center')
 
-                # Mínimo y Máximo
-                minimo = grouped['count'].min()
-                maximo = grouped['count'].max()
-                ax.text(len(grouped) - 1, maximo, f'Máximo: {maximo}', color='green', fontsize=12, fontweight='bold', ha='center')
-                ax.text(0, minimo, f'Mínimo: {minimo}', color='red', fontsize=12, fontweight='bold', ha='center')
+                            # Añadir leyenda
+                    ax.legend(loc='upper right')
 
-                # Añadir leyenda
-                ax.legend(loc='upper right')
+                            # Ajustar fondo del gráfico
+                    ax.set_facecolor('#f7f7f7')
 
-                # Ajustar fondo del gráfico
-                ax.set_facecolor('#f7f7f7')
+                            # Crear barra de colores como referencia
+                    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+                    sm.set_array([])
+                    cbar = fig.colorbar(sm, ax=ax)
+                    cbar.set_label('Cantidad de Personas', fontsize=12)
 
-                # Crear barra de colores como referencia
-                sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-                sm.set_array([])
-                cbar = fig.colorbar(sm, ax=ax)
-                cbar.set_label('Cantidad de Personas', fontsize=12)
+                            # Mostrar el gráfico
+                    st.pyplot(fig)
 
-                # Mostrar el gráfico
-                st.pyplot(fig)
-
-                # Mostrar resumen de estadísticas
-                st.subheader("Estadísticas clave:")
-                st.write(f"**Total de personas:** {grouped['count'].sum()}")
-                st.write(f"**Promedio de personas por nivel educativo:** {round(media, 2)}")
-                st.write(f"**Nivel educativo con mayor cantidad de personas:** {grouped.loc[grouped['count'].idxmax(), 'NIV_EDU']} ({maximo})")
-                st.write(f"**Nivel educativo con menor cantidad de personas:** {grouped.loc[grouped['count'].idxmin(), 'NIV_EDU']} ({minimo})")
+                            # Mostrar resumen de estadísticas
+                    st.subheader("Estadísticas clave:")
+                    st.write(f"**Total de personas:** {grouped['count'].sum()}")
+                    st.write(f"**Promedio de personas por nivel educativo:** {round(media, 2)}")
+                    st.write(f"**Nivel educativo con mayor cantidad de personas:** {grouped.loc[grouped['count'].idxmax(), 'NIV_EDU']} ({maximo})")
+                    st.write(f"**Nivel educativo con menor cantidad de personas:** {grouped.loc[grouped['count'].idxmin(), 'NIV_EDU']} ({minimo})")
 
 
-    ######grafico de torta
-    st.subheader(f"Distribución de ascendencia por el conjunto de filtros aplicados")
+                ######grafico de torta
+        st.subheader(f"Distribución de ascendencia por el conjunto de filtros aplicados")
 
-    # Gráfico de la distribución de ascendencia
-    if not df_filtrado.empty:
-        columnas_ascendencia = ['e29_1', 'e29_2', 'e29_3', 'e29_4', 'e29_5']
-        columnas_existentes = [col for col in columnas_ascendencia if col in df_filtrado.columns]
+                # Gráfico de la distribución de ascendencia
+        if not df_filtrado.empty:
+                    columnas_ascendencia = ['e29_1', 'e29_2', 'e29_3', 'e29_4', 'e29_5']
+                    columnas_existentes = [col for col in columnas_ascendencia if col in df_filtrado.columns]
 
-        if columnas_existentes:
-            ascendencia_totals = [df_filtrado[col].sum() for col in columnas_existentes]
-            ascendencia_labels = ['Afro o negra', 'Asiática o amarilla', 'Blanca', 'Indígena', 'Otra']
+                    if columnas_existentes:
+                        ascendencia_totals = [df_filtrado[col].sum() for col in columnas_existentes]
+                        ascendencia_labels = ['Afro o negra', 'Asiática o amarilla', 'Blanca', 'Indígena', 'Otra']
 
-            fig_ascendencia, ax = plt.subplots()
-            ax.pie(ascendencia_totals, labels=ascendencia_labels, autopct='%1.1f%%', startangle=90)
-            ax.axis('equal')
+                        fig_ascendencia, ax = plt.subplots()
+                        ax.pie(ascendencia_totals, labels=ascendencia_labels, autopct='%1.1f%%', startangle=90)
+                        ax.axis('equal')
 
-            st.pyplot(fig_ascendencia)
+                        st.pyplot(fig_ascendencia)
+                    else:
+                        st.write("No se encontraron las columnas de ascendencia en los datos.")
         else:
-            st.write("No se encontraron las columnas de ascendencia en los datos.")
-    else:
-        st.write("No hay datos disponibles para los filtros seleccionados.")
+                    st.write("No hay datos disponibles para los filtros seleccionados.")
 
-    #################
-    st.subheader(f"Composición de los hogares por departamento")
+                #################
+        st.subheader(f"Composición de los hogares por departamento")
 
-    # Gráfico de barras apiladas para la composición de hogares
-    df_hogares = df_filtrado[['nom_dpto', 'd23', 'd24', 'd25']].dropna()
+                # Gráfico de barras apiladas para la composición de hogares
+        df_hogares = df_filtrado[['nom_dpto', 'd23', 'd24', 'd25']].dropna()
 
-    # Agrupar los hogares por departamento y sumar las personas mayores y menores de 14 años
-    df_hogares_grouped = df_hogares.groupby('nom_dpto').sum().reset_index()
+                # Agrupar los hogares por departamento y sumar las personas mayores y menores de 14 años
+        df_hogares_grouped = df_hogares.groupby('nom_dpto').sum().reset_index()
 
-    # Crear un gráfico de barras apiladas
-    fig_hogares, ax = plt.subplots(figsize=(10, 6))
+                # Crear un gráfico de barras apiladas
+        fig_hogares, ax = plt.subplots(figsize=(10, 6))
 
-    # Crear el gráfico apilado con personas mayores de 14 (D23) y menores de 14 (D24)
-    ax.bar(df_hogares_grouped['nom_dpto'], df_hogares_grouped['d23'], label='Mayores de 14 años', color='blue')
-    ax.bar(df_hogares_grouped['nom_dpto'], df_hogares_grouped['d24'], label='Menores de 14 años', color='orange', bottom=df_hogares_grouped['d23'])
+                # Crear el gráfico apilado con personas mayores de 14 (D23) y menores de 14 (D24)
+        ax.bar(df_hogares_grouped['nom_dpto'], df_hogares_grouped['d23'], label='Mayores de 14 años', color='blue')
+        ax.bar(df_hogares_grouped['nom_dpto'], df_hogares_grouped['d24'], label='Menores de 14 años', color='orange', bottom=df_hogares_grouped['d23'])
 
-    # Título y etiquetas
-    ax.set_title('Composición de los hogares por departamento')
-    ax.set_xlabel('Departamento')
-    ax.set_ylabel('Número de personas')
-    ax.legend()
+                # Título y etiquetas
+        ax.set_title('Composición de los hogares por departamento')
+        ax.set_xlabel('Departamento')
+        ax.set_ylabel('Número de personas')
+        ax.legend()
 
-    # Rotar las etiquetas de los departamentos en el eje x
-    plt.xticks(rotation=45)
+                # Rotar las etiquetas de los departamentos en el eje x
+        plt.xticks(rotation=45)
 
-    # Mostrar el gráfico en Streamlit
-    st.pyplot(fig_hogares) 
-    #################
-
-# Función para crear y renderizar el mapa
-# Función para crear y renderizar el mapa
-def crear_mapa(latitud, longitud, zoom=6):
-    # Crear el mapa base centrado en la ubicación proporcionada
-    return folium.Map(location=[latitud, longitud], zoom_start=zoom)
-
-# Función para agregar marcadores al mapa
-def agregar_marcadores(m, departamentos):
-    for dep, info in departamentos.items():
-        folium.Marker(
-            location=[info['lat'], info['lon']],
-            popup=info['popup'],
-            icon=folium.Icon(color='blue', icon='info-sign')  # Icono personalizado
-        ).add_to(m)
-
-        ####################
-        # Filtramos los datos por departamento y localidad
-
-        ####################
-        
-
-# Este bloque de código pertenece al bloque de tabs[3]
+                # Mostrar el gráfico en Streamlit
+        st.pyplot(fig_hogares) 
+                #################
+      
 with tabs[3]:  
+    # Función para crear y renderizar el mapa
+    def crear_mapa(latitud, longitud, zoom=6):
+        # Crear el mapa base centrado en la ubicación proporcionada
+        return folium.Map(location=[latitud, longitud], zoom_start=zoom)
 
+    # Función para agregar marcadores al mapa
+    def agregar_marcadores(m, departamentos):
+        for dep, info in departamentos.items():
+            folium.Marker(
+                location=[info['lat'], info['lon']],
+                popup=info['popup'],
+                icon=folium.Icon(color='blue', icon='info-sign')  # Icono personalizado
+            ).add_to(m)
 
     departamentos = {
         'Artigas': {'lat': -30.4, 'lon': -56.46667, 'popup': 'Artigas, Uruguay'},
