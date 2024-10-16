@@ -160,6 +160,29 @@ Cat_Permisos = Cat_Permisos.rename(columns={'ANIO_APRO': 'anio'})
 resultado_Cat_Permisos = Cat_Permisos.groupby('anio').size().reset_index(name='Cantidad')
 resultado_Cat_Permisos = resultado_Cat_Permisos[resultado_Cat_Permisos['anio'] >= 1997]
 
+#Recodificar destinos
+mapeo_DSC_DESTIN = {
+    'Comercio': 'Comercio',
+    'Comercio, Industria, Otros': 'Varios destinos',
+    'Comercio,Industria': 'Varios destinos',
+    'Comercio,Otros': 'Varios destinos',
+    'Industria': 'Industria',
+    'Industria,Otros': 'Varios destinos',
+    'Vivienda': 'Vivienda',
+    'Vivienda, Industria, Otros': 'Varios destinos',
+    'Vivienda,Comercio': 'Varios destinos',
+    'Vivienda,Comercio,Industria': 'Varios destinos',
+    'Vivienda,Comercio,Otros': 'Varios destinos',
+    'Vivienda,Industria': 'Varios destinos',
+    'Vivienda,Otros': 'Varios destinos',
+    'Desconocido' : 'Sin destino definido',
+    'Otros': 'Sin destino definido'         
+}
+
+Cat_Permisos['Nuevo_Destino'] = Cat_Permisos['DSC_DESTIN'].map(mapeo_DSC_DESTIN)
+
+print(Cat_Permisos['Nuevo_Destino'].unique())
+
 
 
 print(resultado_Cat_Permisos)
@@ -255,8 +278,15 @@ with tab2:
 
 #Pestaña 4: Gráfico por región
 with tab4:
-    st.header('📈 Región')
+    st.header('📈 Destinos')
     
+    df = resultado_Cat_Permisos.groupby('anio').size().reset_index(name='Cantidad')   
+    
+    # Crear gráfico de líneas por destino y años
+    fig = px.line(df, x='ANIO_APRO', y='Cantidad', color='DSC_DESTIN', title="Evolución de valores por destino según años")
+
+    # Mostrar el gráfico en Streamlit
+    st.plotly_chart(fig)
     
     
     
