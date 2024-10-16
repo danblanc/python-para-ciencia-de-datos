@@ -65,7 +65,7 @@ filtro_dep['anio'] = filtro_dep['anio'].astype('Int64')
 # Mostrar el DataFrame resultante
 filtro_dep.head()
 
-Cat = filtro_dep[filtro_dep['anio'] >= 1997]
+resultado_Cat_Per = filtro_dep[filtro_dep['anio'] >= 1997]
 
 Dic_Cat = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables catastro.csv', sep=';', encoding='latin1')
 
@@ -122,10 +122,10 @@ print(f"Suma total de conteo_destino: {suma_conteo_destino}")
 
 # %%
 # Machear los DataFrames usando un left join
-cat_per = pd.merge(Cat, Permisos, on=['anio','mes','pad'], how='left')
+cat_per = pd.merge(resultado_Cat_Per, Permisos, on=['anio','mes','pad'], how='left')
 
 # Machear los DataFrames usando un left join
-per_cat = pd.merge(p_sin_duplicados,Cat, on=['anio','mes','pad'], how='left')
+per_cat = pd.merge(p_sin_duplicados,resultado_Cat_Per, on=['anio','mes','pad'], how='left')
 
 # Contar cuántos registros hay por 'anio' y 'mes'
 resultado_per_cat = per_cat.groupby(['anio']).size().reset_index(name ='Cantidad')
@@ -148,17 +148,20 @@ Cat_Permisos['AREA_EDIF'] = Cat_Permisos['AREA_EDIF'].str.replace(',', '').astyp
 # Convertir la columna a enteros
 Cat_Permisos['AREA_EDIF'] = Cat_Permisos['AREA_EDIF'].astype('Int64')
 
+Cat_Permisos = Cat_Permisos[Cat_Permisos['ANIO_APRO'] >= 1997]
+
+Cat_Permisos = Cat_Permisos.rename(columns={'ANIO_APRO': 'anio'})
+
+
 # Ver los tipos de datos de cada columna
 tipos_datos = Cat_Permisos.dtypes
 print(tipos_datos)
 
 Dic_Cat_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
 
-Cat_Permisos = Cat_Permisos.rename(columns={'ANIO_APRO': 'anio'})
-
 # Contar la cantidad de registros por año
 resultado_Cat_Permisos = Cat_Permisos.groupby('anio').size().reset_index(name='Cantidad')
-resultado_Cat_Permisos = resultado_Cat_Permisos[resultado_Cat_Permisos['anio'] >= 1997]
+
 
 #Recodificar destinos
 mapeo_DSC_DESTIN = {
@@ -181,11 +184,13 @@ mapeo_DSC_DESTIN = {
 
 Cat_Permisos['Nuevo_Destino'] = Cat_Permisos['DSC_DESTIN'].map(mapeo_DSC_DESTIN)
 
+
+
 print(Cat_Permisos['Nuevo_Destino'].unique())
 
+grafico_1=Cat_Permisos.groupby(['anio','MES_APRO','DSC_REGIME']).size().reset_index(name='cantidad_registros')
 
-
-print(resultado_Cat_Permisos)
+print(grafico_1)
 
 # %%
 # Colocar la imagen en el encabezado
@@ -235,7 +240,7 @@ with tab2:
 
     with col1:
         st.subheader("Catastro")
-        st.dataframe(resultado_cat_per)  # Mostrar el DataFrame de Catastro en la primera columna
+        st.dataframe(resultado_Cat_Per)  # Mostrar el DataFrame de Catastro en la primera columna
 
     with col2:
         st.subheader("Permisos")
@@ -251,44 +256,34 @@ with tab2:
 # Pestaña 3: Mapa
     with tab3:
         st.subheader('Mapa')
-
-    # Ruta al archivo .zip que contiene los shapefiles
-    zip_path = 'C:/Users/vfernand/Desktop/archivos proyecto PYTHON/paisurbano_shp.zip'
-
-    # Cargar el shapefile desde el archivo .zip
-    gdf = gpd.read_file(f'zip://{zip_path}')
-
-    # Mostrar las primeras filas para verificar la carga de los datos
-    print(gdf)
-
-    # Crear un mapa simple de los polígonos
-    gdf.plot(edgecolor='black', facecolor='lightblue')
-
-    # Agregar título y etiquetas
-    plt.title('Mapa de Polígonos desde un Shapefile comprimido en ZIP')
-    plt.xlabel('Longitud')
-    plt.ylabel('Latitud')
-
-    # Mostrar el mapa
-    plt.show()
        
- 
- 
-      
+     
 
 #Pestaña 4: Gráfico por región
 with tab4:
     st.header('📈 Destinos')
     
-    df = resultado_Cat_Permisos.groupby('anio').size().reset_index(name='Cantidad')   
-    
-    # Crear gráfico de líneas por destino y años
-    fig = px.line(df, x='ANIO_APRO', y='Cantidad', color='DSC_DESTIN', title="Evolución de valores por destino según años")
+    # Agrupar solo por 'ANIO_APRO' y 'DSC_REGIME' para sumar la cantidad de registros por año y régimen
+    grafico_agrupado = grafico_1.groupby(['anio', 'MES APRO','DSC_REGIME'])['cantidad_registros'].sum().unstack()
 
-    # Mostrar el gráfico en Streamlit
-    st.plotly_chart(fig)
+    # Crear el gráfico de líneas
+    plt.figure(figsize=(10, 6))
+
+    # Dibujar una línea para cada régimen
+    for column in grafico_agrupado.columns:
+        plt.plot(grafico_agrupado.index, grafico_agrupado[column], marker='o', label=column)
+
+    # Añadir títulos y etiquetas
+    plt.title('Cantidad de Permisos por Año según Régimen')
+    plt.xlabel('Año')
+    plt.ylabel('Cantidad de Registros')
+    plt.legend(title='Régimen')
+    plt.grid(True)
+
+    # Mostrar el gráfico
+    plt.show()
     
-    
+  
     
     
 #Pestaña 5: Gráfico por región
