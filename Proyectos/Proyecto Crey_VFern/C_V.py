@@ -44,10 +44,10 @@ dtypes = {
 }
 
 # Leer el archivo CSV y asignar los nombres a las columnas
-P_Urbanos = pd.read_csv('C:/Users/macar/Desktop/Archivos Python/Padrones Urbanos.csv',
+P_Urbanos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/DatosAbiertosDNC(2024-09)/Padrones Urbanos.csv',
 sep=',', encoding='cp1252', header=None, names=Variables, dtype={4: str, 5: str}  )
 
-Dic_Cat = pd.read_csv('C:/Users/macar/Desktop/Archivos Python/Diccionario variables catastro.csv', sep=';', encoding='latin1')
+Dic_Cat = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables catastro.csv', sep=';', encoding='latin1')
 
 # Mostrar las primeras filas del archivo
 P_Urbanos.head(8)
@@ -82,8 +82,8 @@ resultado_Cat_Per=filtro_dep.groupby(['anio']).size().reset_index(name ='Cantida
 # %%
 #Permisos Intendencia Montevideo
 # Leer el archivo CSV y asignar los nombres a las columnas
-Permisos = pd.read_csv('C:/Users/macar/Desktop/Archivos Python/permisos_construccion.csv', sep=';')
-Dic_Per = pd.read_csv('C:/Users/macar/Desktop/Archivos Python/Diccionario variables permisos.csv', sep=';', encoding='latin1')
+Permisos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/permisos_construccion.csv', sep=';')
+Dic_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables permisos.csv', sep=';', encoding='latin1')
 
 Permisos.rename(columns={'padron': 'pad'}, inplace=True)
 # Mostrar las primeras filas del archivo
@@ -128,8 +128,8 @@ per_cat = pd.merge(p_sin_duplicados,filtro_dep, on=['anio','mes','pad'], how='le
 #################  Catastro  e Intendencia Montevideo
 
 # Leer el archivo CSV 
-Cat_Permisos = pd.read_csv('C:/Users/macar/Desktop/Archivos Python/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
-Dic_Cat_Per = pd.read_csv('C:/Users/macar/Desktop/Archivos Python/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
+Cat_Permisos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
+Dic_Cat_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
 
 Cat_Permisos.head()
 
@@ -206,9 +206,44 @@ PROM_DEMORA_por_año.rename(columns={'T_Demora': 'Promedio_T_Demora'}, inplace=T
 
 PROM_DEMORA_por_año['Promedio_T_Demora'] = PROM_DEMORA_por_año['Promedio_T_Demora'].astype(int)
 
+#Recodificar Tipo de obra
+mapeo_DSC_TIPO_O = {
+    'Obra Nueva': 'Obra Nueva',
+    'Regularizacion - Año' : 'Regularización',
+    'Reforma': 'Reforma',
+    'Reforma a Regularizar': 'Regularización',
+    'Incorporacion A.P.H.': 'Incorporacion P.H.',
+    'Pilotaje': 'Otros',
+    'Estacionamiento': 'Otros',
+    'Obra nueva / ampliaci??n': 'Obra Nueva',
+    'Demolicion': 'Demolición',
+    'A regularizar': 'Regularización',
+    'Autorizada': 'Otros',
+    'Reciclaje': 'Otros',
+    'Regularizaci??n de reforma': 'Regularización',
+    'Desconocido' : 'Sin tipo de obra definido',
+    'Galpon' : 'Otros',
+    'Marquesina':'Otros',
+    'Toldo':'Otros',
+    'A ocupar':'Otros',
+    'Cielo A. Autorizada':'Otros',
+    'Cielo A. A regularizar':'Otros',
+    '  ':'Sin tipo de obra definido',
+    'Incorporaci??n a PH': 'Incorporacion P.H.'         
+}
+
+Cat_Permisos['Tipo_Obra'] = Cat_Permisos['DSC_TIPO_O'].map(mapeo_DSC_TIPO_O)
+
+Tipo_de_obra = Cat_Permisos.groupby(['anio','MES_APRO','DSC_TIPO_O']).size().reset_index(name='Cantidad_TI_O')
+
+print(Cat_Permisos['DSC_TIPO_O'].unique())
+
+
+
+
 # %%
 # Colocar la imagen en el encabezado
-st.image("C:/Users/macar/Desktop/Archivos Python/Imagen carátula.jpg", width=700)
+st.image("C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Imagen carátula.jpg", width=700)
 
 st.subheader('Análisis descriptivo y comparativo')
 
@@ -219,7 +254,7 @@ st.sidebar.subheader('Permisos: Permisos solicitados y aprobados por padrón y s
 st.sidebar.subheader('Cat_Per: Permisos solicitados y aprobados con información de catastro. https://intgis.montevideo.gub.uy/sit/php/common/datos/generar_zip2.php?nom_tab=v_mdg_parcelas_geom&tipo=gis')
 
 # Creo las tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases de datos', 'Análisis por año' , 'Mapa', ':bar_chart: Régimen', 'otro2', ':bar_chart: Destino', ':bar_chart: Destino por Año', ':chart_with_upwards_trend: Promedio de Tiempos de Demora por Año'])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases de datos', 'Análisis por año' , 'Mapa', ':bar_chart: Régimen', 'Tipo de obra', ':bar_chart: Destino', ':bar_chart: Destino por Año', ':chart_with_downwards_trend: Promedio de Tiempos de Demora por Año'])
 
 with tab1:
     st.header('Base de Datos')
@@ -296,7 +331,11 @@ with tab4:
     
 #Pestaña 5: Gráfico por región
 with tab5:
-    st.header('📈 Región')
+    fig, Tipo_de_obra = plt.subplots()
+    Tipo_de_obra.scatter(['Tipo_Obra'], ['Destino'])
+    plt.show()
+    
+    
     
 #Pestaña 6: Gráfico de cantidad de casos por Destino   (se puede dejar esto y o la tabla 7)
 with tab6:
@@ -323,23 +362,29 @@ with tab7:
                           y='Cantidad', 
                           color='Nuevo_Destino', 
                           title='Cantidad por Año y Destino',
-                          labels={'Cantidad': 'Cantidad', 'anio': 'Año'},
-                          barmode='stack')  # Apilar las barras
+                          labels={'Cantidad': 'Cantidad', 'anio': 'Año' , 'Nuevo_Destino':'Destino'},
+                          barmode='stack', # Apilar las barras
+                        color_discrete_sequence=['#008080', '#40E0D0', '#17becf', '#48D1CC', '#F5FFFA']) 
+    
 
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig_año_destino)
     
 #Ver el promedio de demora en días entre que se incia el expediente y se otorga el permiso
 with tab8:
-    st.header(':chart_with_upwards_trend: Promedio de Tiempos de Demora por Año')
+    st.header(':chart_with_downwards_trend: Promedio de Tiempos de Demora por Año')
 
     # Crear gráfico de líneas
     fig_promedio_demora = px.line(PROM_DEMORA_por_año, 
                             x='año_ini', 
                             y='Promedio_T_Demora', 
                             title='Promedio de Tiempos de Demora por Año',
-                            labels={'Promedio_T_Demora': 'Promedio de Demora', 'año_ini': 'Año'},
-                            markers=True)  # Agregar marcadores a las líneas
+                            labels={'Promedio_T_Demora': 'Promedio de Demora', 'año_ini': 'Año', 'Nuevo_Destino':'Destino'},
+                            markers=True,  # Agregar marcadores a las líneas
+                            color_discrete_sequence=['#FF5733'])  # Cambia el color de la línea (Ejemplo: rojo-naranja)
+    
+    
+
 
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig_promedio_demora)
