@@ -7,19 +7,24 @@ import plotly.express as px
 import folium
 from streamlit_folium import st_folium
 import altair as alt
+import plotly.graph_objects as go
+import matplotlib.cm as cm
+import matplotlib.ticker as mtick
+import matplotlib.colorbar as cbar
+import matplotlib.colors as mcolors
 
 
-
-st.image("data/ine.jpg", caption="", use_column_width=True)
+# Cargar la imagen
+st.image("data/ine.jpg", caption="", width=400)
 
 st.title('PRESENTACION DE DATOS DE LA ENCUESTA CONTINUA DE HOGARES (ECH)')
-st.header('CORRESPODIENTE A ENERO DEL 2024')
+st.header('CORRESPONDIENTE A ENERO DEL 2024')
 
 #leo el csv
 ECH_Seg_12024 = pd.read_csv('data/ECH_Seguimiento_Mes_1_2024.csv')
 
 #cargo las opciones de taps
-tabs = st.tabs(["Inicio", "Tabla", "Graficos", "Mapas"])
+tabs = st.tabs(["Inicio", "Tabla", "Graficos", "Mapas", "Torta"])
 
 st.sidebar.title('Filtros')
 
@@ -30,17 +35,29 @@ option_depto = st.sidebar.selectbox("Seleccione el Departamento:", ['Todos'] + E
 
 # Selectbox para elegir el localidad segun el departamento
 if option_depto == 'Todos':
-    option_localidad= st.sidebar.selectbox("Seleccione la Localidad:", ['Todos'] + ECH_Seg_12024["NOM_LOC_AGR_13"].unique().tolist())
+    option_localidad = st.sidebar.selectbox("Seleccione la Localidad:", ['Todos'] + ECH_Seg_12024["NOM_LOC_AGR_13"].unique().tolist())
 else:    
-    option_localidad= st.sidebar.selectbox("Seleccione la Localidad:", ['Todos'] + ECH_Seg_12024[ECH_Seg_12024['nom_dpto'] == option_depto]["NOM_LOC_AGR_13"].unique().tolist())
+    option_localidad = st.sidebar.selectbox("Seleccione la Localidad:", ['Todos'] + ECH_Seg_12024[ECH_Seg_12024['nom_dpto'] == option_depto]["NOM_LOC_AGR_13"].unique().tolist())
 
 #seleccion de sexo
 sexo = ['Todos','Hombre', 'Mujer']
-option_sexo = st.sidebar.selectbox("Seleccione el sexo:", sexo)
+option_sexo = st.sidebar.selectbox("Seleccione el sexo:", ['Todos', 'Hombre', 'Mujer'])
+
+
 
 # Selectbox rango de edad
 rango = ['Todos','0-18', '19-30', '31-40', '41-50', '51-60', '61-100', '>100']
 option_rango = st.sidebar.selectbox("Seleccione rango de edad:", rango)
+# Control deslizante para seleccionar un rango de edad
+
+if 'e27' in ECH_Seg_12024.columns:
+    edad_min, edad_max = int(ECH_Seg_12024['e27'].min()), int(ECH_Seg_12024['e27'].max())
+    rango_edad = st.sidebar.slider("Seleccione el rango de edad:", min_value=edad_min, max_value=edad_max, value=(edad_min, edad_max))
+else:
+    st.sidebar.write("No se encontró la columna de edades ('e27') en los datos.")
+
+
+
 
 ##Aplico los filtros###########################################
 if ((option_depto != 'Todos') and (option_localidad != 'Todos')):
@@ -332,7 +349,7 @@ else:
                    
                 else: 
                     df_filtrado = ECH_Seg_12024[(ECH_Seg_12024['e27'] > 100)]
-
+ 
 # Contenido de la pestaña "Inicio"
 with tabs[0]: 
     st.subheader('Información de las series')
@@ -348,367 +365,276 @@ with tabs[0]:
 
     st.subheader('Unidad de análisis')
     st.write('La encuesta va dirigida a la población que reside en viviendas particulares y que integra hogares particulares, por lo que quedan excluidos tanto las viviendas como los hogares colectivos (hoteles, conventos, cuarteles, hospitales). No obstante lo establecido anteriormente, se incluyen los hogares, que formando un grupo independiente, residen en estos establecimientos, como puede ser el caso de los encargados, caseros, porteros,etc.')
-# Contenido de la pestaña "Datos"
-with tabs[1]:    
-    st.subheader(f'Información filtrada para {option_depto} y {option_localidad}')    
-    st.write(df_filtrado)   
 
+
+# Contenido de la pestaña "Tabla"
+with tabs[1]:
+    st.subheader(f'Información filtrada para {option_depto} y {option_localidad}')
+    st.write(df_filtrado)
+
+# Contenido de la pestaña "Graficos"
 with tabs[2]:
+    # Calcular el promedio de edad por departamento
+     # Calcular el promedio de edad por departamento
     promedio_edad = ECH_Seg_12024.groupby('nom_dpto')['e27'].mean().reset_index()
 
+    # Calcular el promedio general de edad y la desviación estándar
+    promedio_general = ECH_Seg_12024['e27'].mean()
+    desviacion_estandar = ECH_Seg_12024['e27'].std()
+
+    # Preparar los datos para el gráfico
     data = pd.DataFrame({
         'Departamentos': promedio_edad['nom_dpto'],
         'Edad': promedio_edad['e27']
-    })   
+    })
+
+    # Crear el gráfico de línea con Plotly Express
+    fig_avg_price = px.line(
+        data, 
+        x='Departamentos', 
+        y='Edad', 
+        title='Promedio de Edad por Departamento',
+        labels={'Edad': 'Edad Promedio', 'Departamentos': 'Departamentos'}
+    )
+
+    # Añadir una línea de referencia para el promedio general
+    fig_avg_price.add_hline(
+        y=promedio_general, 
+        line_dash="dash", 
+        line_color="red", 
+        annotation_text="Promedio General", 
+        annotation_position="bottom right"
+    )
+
+    # Añadir un área de sombreado para la desviación estándar
+    fig_avg_price.add_shape(
+        type="rect",
+        x0=0, 
+        x1=1, 
+        y0=promedio_general - desviacion_estandar, 
+        y1=promedio_general + desviacion_estandar,
+        line=dict(color="LightSeaGreen", width=0),
+        fillcolor="LightSeaGreen",
+        opacity=0.2,
+        layer="below",
+        xref="paper",
+        yref="y"
+    )
+    fig_avg_price.add_annotation(
+        text="Desviación Estándar", 
+        xref="paper", yref="y",
+        x=0.99, y=promedio_general + desviacion_estandar, showarrow=False,
+        font=dict(size=12, color="LightSeaGreen")
+    )
+
+    # Añadir etiquetas en los puntos que muestran el valor exacto de la edad promedio
+    fig_avg_price.update_traces(
+        mode='lines+markers+text', 
+        text=data['Edad'].round(2),  # Mostrar el valor de la edad
+        textposition='top center'
+    )
+
+    # Personalizar colores de la línea y los puntos
+    fig_avg_price.update_traces(
+        line=dict(color='blue'),  # Color de la línea
+        marker=dict(size=8, color='blue', line=dict(width=2, color='DarkSlateGrey'))  # Personalización de los puntos
+    )
+
+    # Ajustar los ejes y mejorar la presentación del gráfico
+    fig_avg_price.update_layout(
+        xaxis_title='Departamento',
+        yaxis_title='Edad Promedio',
+        plot_bgcolor='rgba(0,0,0,0)',  # Fondo transparente
+        paper_bgcolor='rgba(0,0,0,0)',  # Fondo transparente del papel
+        font=dict(family="Arial", size=14, color="Black")  # Estilo de fuente
+    )
+
+    # Añadir interactividad avanzada con zoom y desplazamiento
+    fig_avg_price.update_layout(
+        xaxis=dict(fixedrange=False),  # Habilitar zoom en eje X
+        yaxis=dict(fixedrange=False),  # Habilitar zoom en eje Y
+    )
+
+    # Mostrar el gráfico en Streamlit
+    st.plotly_chart(fig_avg_price)
+
+    # Añadir resumen estadístico de desviación estándar
+    st.subheader("Estadísticas adicionales:")
+    st.write(f"**Promedio General de Edad:** {round(promedio_general, 2)} años")
+    st.write(f"**Desviación Estándar de Edad:** {round(desviacion_estandar, 2)} años")
+    st.write(f"**Edad Promedio más alta:** {data['Edad'].max()} años ({data.loc[data['Edad'].idxmax(), 'Departamentos']})")
+    st.write(f"**Edad Promedio más baja:** {data['Edad'].min()} años ({data.loc[data['Edad'].idxmin(), 'Departamentos']})")
 
     # Gráfico de promedio de edad
     fig_avg_price = px.line(data, x='Departamentos', y='Edad', title='Promedio de Edad por departamento')
     st.plotly_chart(fig_avg_price)
-
+    
     ##########################################
+
     if option_depto == 'Todos':
         st.subheader('Seleccione el departamento para ver grafico por departamento')
     else:    
-    # Filtra el DataFrame por el departamento seleccionado
+        # Filtra el DataFrame por el departamento seleccionado
         df_filtrado = ECH_Seg_12024[(ECH_Seg_12024["nom_dpto"] == option_depto)] 
 
         # Agrupa los datos por nivel educativo y edad
         grouped = df_filtrado.groupby('NIV_EDU').size()
     
         # Configura el gráfico
-        st.title("Gráfico de barras por nivel educativo")
-        st.subheader(f"Departamento: {option_depto}")
+        # Mostrar título
+        st.markdown("<h1 style='text-align: center; font-size: 32px;'>Gráfico de barras por nivel educativo</h1>", unsafe_allow_html=True)
+        st.markdown(f"<h2 style='text-align: center; font-size: 24px;'>Departamento: {option_depto}</h2>", unsafe_allow_html=True)
 
-        # Generar el gráfico
-        fig, ax = plt.subplots(figsize=(10, 6))
-        grouped.plot(kind='bar', ax=ax)
-        ax.set_title('Número de personas por Nivel Educativo')
-        ax.set_ylabel('Cantidad')
-        ax.set_xlabel('Nivel Educativo')
-        plt.xticks(rotation=45)
-        st.pyplot(fig)
+        # Agrupar datos por nivel educativo
+        grouped = df_filtrado.groupby('NIV_EDU').size().reset_index(name='count')
 
-   
+        # Verificar si hay datos
+        if grouped.empty:
+            st.write("No hay datos disponibles para este nivel educativo.")
+        else:
+            # Verificar si los valores son válidos
+            if grouped['count'].isnull().all() or grouped['count'].sum() == 0:
+                st.write("No hay suficientes datos para mostrar el gráfico.")
+            else:
+                # Colores por rango
+                num_barras = len(grouped)
+                norm = mcolors.Normalize(vmin=grouped['count'].min(), vmax=grouped['count'].max())
+                cmap = cm.get_cmap('coolwarm')
+
+                # Crear la figura
+                fig, ax = plt.subplots(figsize=(12, 6))
+
+                # Generar gráfico de barras con colores personalizados
+                bars = ax.bar(grouped['NIV_EDU'], grouped['count'], color=cmap(norm(grouped['count'])), edgecolor='black')
+
+                # Títulos y etiquetas
+                ax.set_title('Número de personas por Nivel Educativo', fontsize=20, fontweight='bold')
+                ax.set_ylabel('Cantidad de Personas', fontsize=14)
+                ax.set_xlabel('Nivel Educativo', fontsize=14)
+
+                # Rotar etiquetas del eje X
+                plt.xticks(rotation=45, ha='right')
+
+                # Añadir valores encima de las barras con porcentaje
+                total_personas = grouped['count'].sum()
+                for bar in bars:
+                    height = bar.get_height()
+                    porcentaje = (height / total_personas) * 100
+                    ax.annotate(f'{int(height)} ({porcentaje:.1f}%)',
+                                xy=(bar.get_x() + bar.get_width() / 2, height),
+                                xytext=(0, 5),
+                                textcoords="offset points",
+                                ha='center', va='bottom', fontsize=10, fontweight='bold')
+
+                # Media
+                media = grouped['count'].mean()
+                ax.axhline(media, color='red', linestyle='--', linewidth=1, label=f'Media: {int(media)}')
+
+                # Mínimo y Máximo
+                minimo = grouped['count'].min()
+                maximo = grouped['count'].max()
+                ax.text(len(grouped) - 1, maximo, f'Máximo: {maximo}', color='green', fontsize=12, fontweight='bold', ha='center')
+                ax.text(0, minimo, f'Mínimo: {minimo}', color='red', fontsize=12, fontweight='bold', ha='center')
+
+                # Añadir leyenda
+                ax.legend(loc='upper right')
+
+                # Ajustar fondo del gráfico
+                ax.set_facecolor('#f7f7f7')
+
+                # Crear barra de colores como referencia
+                sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+                sm.set_array([])
+                cbar = fig.colorbar(sm, ax=ax)
+                cbar.set_label('Cantidad de Personas', fontsize=12)
+
+                # Mostrar el gráfico
+                st.pyplot(fig)
+
+                # Mostrar resumen de estadísticas
+                st.subheader("Estadísticas clave:")
+                st.write(f"**Total de personas:** {grouped['count'].sum()}")
+                st.write(f"**Promedio de personas por nivel educativo:** {round(media, 2)}")
+                st.write(f"**Nivel educativo con mayor cantidad de personas:** {grouped.loc[grouped['count'].idxmax(), 'NIV_EDU']} ({maximo})")
+                st.write(f"**Nivel educativo con menor cantidad de personas:** {grouped.loc[grouped['count'].idxmin(), 'NIV_EDU']} ({minimo})")
+
+
+# Función para crear y renderizar el mapa
+# Función para crear y renderizar el mapa
+def crear_mapa(latitud, longitud, zoom=6):
+    # Crear el mapa base centrado en la ubicación proporcionada
+    return folium.Map(location=[latitud, longitud], zoom_start=zoom)
+
+# Función para agregar marcadores al mapa
+def agregar_marcadores(m, departamentos):
+    for dep, info in departamentos.items():
+        folium.Marker(
+            location=[info['lat'], info['lon']],
+            popup=info['popup'],
+            icon=folium.Icon(color='blue', icon='info-sign')  # Icono personalizado
+        ).add_to(m)
+
+# Este bloque de código pertenece al bloque de tabs[3]
 with tabs[3]:
+    departamentos = {
+        'Artigas': {'lat': -30.4, 'lon': -56.46667, 'popup': 'Artigas, Uruguay'},
+        'Canelones': {'lat': -34.52278, 'lon': -56.27778, 'popup': 'Canelones, Uruguay'},
+        'Cerro Largo': {'lat': -33.02940, 'lon': -55.35351, 'popup': 'Cerro Largo, Uruguay'},
+        'Colonia': {'lat': -34.4626200, 'lon': -57.8397600, 'popup': 'Colonia, Uruguay'},
+        'Durazno': {'lat': -33.38056, 'lon': -56.52361, 'popup': 'Durazno, Uruguay'},
+        'Flores': {'lat': -33.583333, 'lon': -56.833333, 'popup': 'Flores, Uruguay'},
+        'Florida': {'lat': -34.09556, 'lon': -56.21417, 'popup': 'Florida, Uruguay'},
+        'Lavalleja': {'lat': -33.997196, 'lon': -54.999224, 'popup': 'Lavalleja, Uruguay'},
+        'Maldonado': {'lat': -34.908716, 'lon': -54.958272, 'popup': 'Maldonado, Uruguay'},
+        'Montevideo': {'lat': -34.90328, 'lon': -56.18816, 'popup': 'Montevideo, Uruguay'},
+        'Paysandú': {'lat': -32.3171, 'lon': -58.08072, 'popup': 'Paysandú, Uruguay'},
+        'Río Negro': {'lat': -32.725742, 'lon': -57.387578, 'popup': 'Río Negro, Uruguay'},
+        'Rivera': {'lat': -30.90534, 'lon': -55.55076, 'popup': 'Rivera, Uruguay'},
+        'Rocha': {'lat': -34.0, 'lon': -54.0, 'popup': 'Rocha, Uruguay'},
+        'Salto': {'lat': -31.38333, 'lon': -57.96667, 'popup': 'Salto, Uruguay'},
+        'San José': {'lat': -34.455, 'lon': -56.616944, 'popup': 'San José, Uruguay'},
+        'Soriano': {'lat': -33.492127, 'lon': -57.78931, 'popup': 'Soriano, Uruguay'},
+        'Tacuarembó': {'lat': -31.71694, 'lon': -55.98111, 'popup': 'Tacuarembó, Uruguay'},
+        'Treinta y Tres': {'lat': -33.23333, 'lon': -54.38333, 'popup': 'Treinta y Tres, Uruguay'}
+    }
+
     if option_depto == 'Todos':
-        st.subheader("Uruguay")
-        # Crear el mapa base  
-        m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+        st.subheader("Mapa de Uruguay con todos los departamentos")
+
+        # Crear un mapa centrado en Uruguay
+        m = crear_mapa(-32.522779, -55.765835, zoom=6)
+
+        # Agregar todos los departamentos al mapa
+        agregar_marcadores(m, departamentos)
+
+        # Añadir control de capas
+        folium.LayerControl().add_to(m)
 
         # Renderizar el mapa en Streamlit
-        st_folium (m, width=700, height=500)  
-    else:   
-
-        if option_depto =='Artigas':    
-            st.subheader("Departamento de Artigas")
-
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-30.4, -56.46667],  # Simular diferentes posiciones
-                popup='Artigas, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)
-                 
+        st_folium(m, width=800, height=500)
     
-        elif option_depto == 'Canelones':  
-            st.subheader("Departamento de Canelones:")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+    else:
+        # Verificar si el departamento existe en el diccionario
+        if option_depto in departamentos:
+            dep_info = departamentos[option_depto]
+            st.subheader(f"Departamento de {option_depto}")
 
-            # cargo los mapas
+            # Crear el mapa centrado en el departamento
+            m = crear_mapa(dep_info['lat'], dep_info['lon'], zoom=10)
+
+            # Agregar solo el marcador del departamento seleccionado
             folium.Marker(
-                location=[-34.52278, -56.27778],  # Simular diferentes posiciones
-                popup='Canelones, Uruguay',
-                icon=folium.Icon(color='blue')
-        
+                location=[dep_info['lat'], dep_info['lon']],
+                popup=dep_info['popup'],
+                icon=folium.Icon(color='blue', icon='info-sign')
             ).add_to(m)
 
             # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)
-        
-        elif option_depto == 'Cerro Largo':   
-            st.subheader("Departamento de Cerro Largo")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
+            st_folium(m, width=800, height=500)
 
-            # cargo los mapas
-            folium.Marker(
-                location=[-33.02940, -55.35351],  # Simular diferentes posiciones
-                popup='Cerro Largo, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
+        else:
+            st.write("Departamento no encontrado.")
 
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)
-
-        elif option_depto == 'Colonia':   
-            st.subheader("Departamento de Colonia")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-34.4626200, -57.8397600],  # Simular diferentes posiciones
-                popup='Colonia, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500) 
-
-        elif option_depto == 'Durazno':   
-            st.subheader("Departamento de Durazno")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-33.38056, -56.52361],  # Simular diferentes posiciones
-                popup='Durazno, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500) 
-
-        elif option_depto == 'Flores':   
-            st.subheader("Departamento de Flores")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-33.583333, -56.833333],  # Simular diferentes posiciones
-                popup='Flores, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)   
-
-        elif option_depto == 'Florida':   
-            st.subheader("Departamento de Florida")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-34.09556, -56.21417],  # Simular diferentes posiciones
-                popup='Florida, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)    
-
-        elif option_depto == 'Lavalleja':   
-            st.subheader("Departamento de Lavalleja")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-33.997196, -54.999224],  # Simular diferentes posiciones
-                popup='Lavalleja, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)   
-
-        elif option_depto == 'Maldonado':   
-            st.subheader("Departamento de Maldonado")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-34.908716, -54.958272],  # Simular diferentes posiciones
-                popup='Maldonado, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)  
-
-        elif option_depto == 'Montevideo':   
-            st.subheader("Departamento de Montevideo")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-34.90328, -56.18816],  # Simular diferentes posiciones
-                popup='Montevideo, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)  
-
-        elif option_depto == 'Paysandú':   
-            st.subheader("Departamento de Paysandú")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-32.3171, -58.08072],  # Simular diferentes posiciones
-                popup='Paysandú, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)   
-
-        elif option_depto == 'Río Negro':   
-            st.subheader("Departamento de Río Negro")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-32.725742, -57.387578],  # Simular diferentes posiciones
-                popup='Río Negro, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)
-
-        elif option_depto == 'Rivera':   
-            st.subheader("Departamento de Rivera")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-30.90534, -55.55076],  # Simular diferentes posiciones
-                popup='Rivera, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500) 
-
-        elif option_depto == 'Rocha':   
-            st.subheader("Departamento de Rocha")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-34, -54],  # Simular diferentes posiciones
-                popup='Rocha, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)
-
-        elif option_depto == 'Salto':   
-            st.subheader("Departamento de Salto")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-31.38333, -57.96667],  # Simular diferentes posiciones
-                popup='Salto, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)   
-
-        elif option_depto == 'San José':   
-            st.subheader("Departamento de San José")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-34.455, -56.616944],  # Simular diferentes posiciones
-                popup='San José, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)
-
-        elif option_depto == 'Soriano':   
-            st.subheader("Departamento de Soriano")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-33.492127, -57.78931],  # Simular diferentes posiciones
-                popup='Soriano, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)
-
-        elif option_depto == 'Tacuarembó':   
-            st.subheader("Departamento de Tacuarembó")
-             # Crear el mapa base  
-            m = folium.Map(location=[-32.522779, -55.765835], zoom_start=6)  # Ubicación genérica
-
-            # cargo los mapas
-            folium.Marker(
-                location=[-31.71694, -55.98111],  # Simular diferentes posiciones
-                popup='Tacuarembó, Uruguay',
-                icon=folium.Icon(color='blue')
-        
-            ).add_to(m)
-
-            # Renderizar el mapa en Streamlit
-            st_folium (m, width=700, height=500)                                     
-
-        else:   
-            st.subheader("Departamento de Treinta y Tres")
-            st.image("data/treintaytres.jfif",use_column_width=True)   
-
-
-   
- # Crear pestaña única
-tab = st.tab("Visualización")
-
-# Barra lateral de filtros
-st.sidebar.title('Filtros')
-
-# Selectbox para elegir el departamento
-option_depto = st.sidebar.selectbox("Seleccione el Departamento:", ['Todos'] + ECH_Seg_12024["nom_dpto"].unique().tolist())
-
-# Selectbox para elegir la localidad según el departamento
-if option_depto == 'Todos':
-    option_localidad = st.sidebar.selectbox("Seleccione la Localidad:", ['Todos'] + ECH_Seg_12024["NOM_LOC_AGR_13"].unique().tolist())
-else:
-    option_localidad = st.sidebar.selectbox("Seleccione la Localidad:", ['Todos'] + ECH_Seg_12024[ECH_Seg_12024['nom_dpto'] == option_depto]["NOM_LOC_AGR_13"].unique().tolist())
 
 # Filtramos los datos por departamento y localidad
 if option_depto == 'Todos':
@@ -720,7 +646,7 @@ if option_localidad != 'Todos':
     region_sales_data = region_sales_data[region_sales_data['NOM_LOC_AGR_13'] == option_localidad]
 
 # Contenido del tab único
-with tab[4]:
+
     st.subheader(f'Información filtrada para {option_depto} y {option_localidad}')
 
     # Mostrar la tabla con los datos filtrados
@@ -757,3 +683,55 @@ with tab[4]:
         st_folium(m, width=700, height=500)
     else:
         st.write("No hay datos de coordenadas disponibles para mostrar el mapa.")
+   
+
+# Contenido de la pestaña "Torta"
+with tabs[4]:
+    st.subheader(f"Distribución de ascendencia por el conjunto de filtros aplicados")
+
+    # Gráfico de la distribución de ascendencia
+    if not df_filtrado.empty:
+        columnas_ascendencia = ['e29_1', 'e29_2', 'e29_3', 'e29_4', 'e29_5']
+        columnas_existentes = [col for col in columnas_ascendencia if col in df_filtrado.columns]
+
+        if columnas_existentes:
+            ascendencia_totals = [df_filtrado[col].sum() for col in columnas_existentes]
+            ascendencia_labels = ['Afro o negra', 'Asiática o amarilla', 'Blanca', 'Indígena', 'Otra']
+
+            fig_ascendencia, ax = plt.subplots()
+            ax.pie(ascendencia_totals, labels=ascendencia_labels, autopct='%1.1f%%', startangle=90)
+            ax.axis('equal')
+
+            st.pyplot(fig_ascendencia)
+        else:
+            st.write("No se encontraron las columnas de ascendencia en los datos.")
+    else:
+        st.write("No hay datos disponibles para los filtros seleccionados.")
+
+    #################
+    st.subheader(f"Composición de los hogares por departamento")
+
+    # Gráfico de barras apiladas para la composición de hogares
+    df_hogares = df_filtrado[['nom_dpto', 'd23', 'd24', 'd25']].dropna()
+
+    # Agrupar los hogares por departamento y sumar las personas mayores y menores de 14 años
+    df_hogares_grouped = df_hogares.groupby('nom_dpto').sum().reset_index()
+
+    # Crear un gráfico de barras apiladas
+    fig_hogares, ax = plt.subplots(figsize=(10, 6))
+
+    # Crear el gráfico apilado con personas mayores de 14 (D23) y menores de 14 (D24)
+    ax.bar(df_hogares_grouped['nom_dpto'], df_hogares_grouped['d23'], label='Mayores de 14 años', color='blue')
+    ax.bar(df_hogares_grouped['nom_dpto'], df_hogares_grouped['d24'], label='Menores de 14 años', color='orange', bottom=df_hogares_grouped['d23'])
+
+    # Título y etiquetas
+    ax.set_title('Composición de los hogares por departamento')
+    ax.set_xlabel('Departamento')
+    ax.set_ylabel('Número de personas')
+    ax.legend()
+
+    # Rotar las etiquetas de los departamentos en el eje x
+    plt.xticks(rotation=45)
+
+    # Mostrar el gráfico en Streamlit
+    st.pyplot(fig_hogares) 
