@@ -617,7 +617,7 @@ with tabs[2]:
             else:
                 st.write("No se encontraron las columnas de ascendencia en los datos.")
         else:
-            st.write("No hay datos disponibles para los filtros seleccionados.")
+            st.write("No hay datos disponibles para los filtros seleccionados.") 
        
     elif subtab == "2.5 - Composición de los hogares":
          #################
