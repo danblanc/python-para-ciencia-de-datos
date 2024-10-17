@@ -240,7 +240,7 @@ keyring==23.5.0
 kiwisolver==1.4.7
 langchain==0.3.3
 langchain-community==0.3.2
-langchain-core==0.3.10
+langchain-core==0.3.12
 langchain-openai==0.2.2
 langchain-text-splitters==0.3.0
 langcodes==3.4.1
@@ -262,7 +262,7 @@ marisa-trie==1.2.0
 Markdown==3.7
 markdown-it-py==3.0.0
 MarkupSafe==2.1.5
-marshmallow==3.22.0
+marshmallow==3.23.0
 matplotlib==3.7.1
 matplotlib-inline==0.1.7
 matplotlib-venn==1.1.1
@@ -313,7 +313,7 @@ nvidia-nvjitlink-cu12==12.6.77
 nvtx==0.2.10
 oauth2client==4.1.3
 oauthlib==3.2.2
-openai==1.51.2
+openai==1.52.0
 openai-whisper==20240930
 opencv-contrib-python==4.10.0.84
 opencv-python==4.10.0.84
@@ -381,7 +381,7 @@ pyasn1_modules==0.4.1
 pycocotools==2.0.8
 pycparser==2.22
 pydantic==2.9.2
-pydantic-settings==2.5.2
+pydantic-settings==2.6.0
 pydantic_core==2.23.4
 pydata-google-auth==1.8.2
 pydot==3.0.2
@@ -438,7 +438,7 @@ rmm-cu12==24.6.0
 rpds-py==0.20.0
 rpy2==3.4.2
 rsa==4.9
-ruff==0.6.9
+ruff==0.7.0
 safetensors==0.4.5
 scikit-image==0.24.0
 scikit-learn==1.5.2
@@ -526,7 +526,7 @@ tweepy==4.14.0
 typeguard==4.3.0
 typer==0.12.5
 types-pytz==2024.2.0.20241003
-types-setuptools==75.1.0.20240917
+types-setuptools==75.1.0.20241014
 typing-inspect==0.9.0
 typing_extensions==4.12.2
 tzdata==2024.2
@@ -534,7 +534,7 @@ tzlocal==5.2
 uc-micro-py==1.0.3
 uritemplate==4.1.1
 urllib3==2.2.3
-uvicorn==0.31.1
+uvicorn==0.32.0
 vega-datasets==0.9.0
 wadllib==1.3.6
 wasabi==1.1.3
