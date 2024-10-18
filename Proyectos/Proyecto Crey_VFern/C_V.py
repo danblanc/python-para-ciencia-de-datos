@@ -177,7 +177,7 @@ Cat_Permisos['DSC_REGIME'] = Cat_Permisos['DSC_REGIME'].map(mapeo_DSC_REGIME)
 Cat_Permisos['Cantidad'] = 1
 
 
-Cat_Permisos_agrupado = Cat_Permisos.groupby(['anio','DSC_REGIME']).size().reset_index(name='Cantidad')
+Cat_Permisos_agrupado = Cat_Permisos.groupby(['anio','mes','DSC_REGIME']).size().reset_index(name='Cantidad')
 
 conteo_destino = Cat_Permisos['Nuevo_Destino'].value_counts().reset_index()
 conteo_destino.columns = ['Destino', 'Cantidad']
@@ -190,7 +190,6 @@ Cat_Permisos['FECHA_APRO'] = pd.to_datetime(Cat_Permisos['FECHA_APRO'], format='
 
 Cat_Permisos['T_Demora'] = (Cat_Permisos['FECHA_APRO'] - Cat_Permisos['FECHA_INI']).dt.days
 Cat_Permisos['año_ini'] = Cat_Permisos['FECHA_INI'].dt.year
-
 
 PROM_DEMORA_por_año = Cat_Permisos.groupby('año_ini')['T_Demora'].mean().reset_index()
 
@@ -255,11 +254,11 @@ st.sidebar.header('Filtros')
 
 
 # Creo las tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases de datos', 'Análisis por año' , 'Mapa', ':bar_chart: Régimen', 'Tipo de obra', ':bar_chart: Destino', ':bar_chart: Destino por Año', ':chart_with_downwards_trend: Promedio de Tiempos de Demora por Año'])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases de datos', 'Análisis por año' , ':bar_chart: Régimen', 'Tipo de obra', ':bar_chart: Destino', ':bar_chart: Destino por Año', ':chart_with_downwards_trend: Tiempos de Demora', 'Mapa'])
 
 with tab1:
     st.header('Base de Datos')
-    st.subheader('Pueden descargarse las base de datos y diccionarios de ambas bases.')
+    st.markdown('###### Pueden descargarse las base de datos y diccionarios las bases.')
     
     
     # Crear un selectbox en la primera pestaña
@@ -286,23 +285,31 @@ with tab1:
 with tab2:
     st.subheader('Bases agrupadas por año')
     
-    # Opción para seleccionar el año, incluyendo "Ver Todos"
+   # Opción para seleccionar el año, incluyendo "Ver Todos"
     year_filter = st.sidebar.selectbox('Selecciona un año:', ['Ver Todos'] + sorted(filtro_dep['anio'].unique()))
 
     # Si el año no es "Ver Todos", obtener los meses correspondientes
     if year_filter != 'Ver Todos':
-        meses_disponibles = sorted(filtro_dep[filtro_dep['anio'] == year_filter]['mes'].unique())
+        meses_disponibles = ['Ver Todos'] + sorted(filtro_dep[filtro_dep['anio'] == year_filter]['mes'].unique())
         month_filter = st.sidebar.selectbox('Selecciona un mes:', meses_disponibles)
     else:
-         month_filter = 'Ver Todos'  # Opción para mostrar todos los meses
+        month_filter = 'Ver Todos'  # Opción para mostrar todos los meses
 
-    # Filtrar las tres bases de datos simultáneamente
+    # Filtrar las bases de datos dependiendo de los filtros seleccionados
     if year_filter != 'Ver Todos' and month_filter != 'Ver Todos':
         filtered_cat = resultado_Cat_Per[(resultado_Cat_Per['anio'] == year_filter) & (resultado_Cat_Per['mes'] == month_filter)]
         filtered_per = resultado_Per_Cat[(resultado_Per_Cat['anio'] == year_filter) & (resultado_Per_Cat['mes'] == month_filter)]
         filtered_cat_perm = resultado_Cat_Permisos[(resultado_Cat_Permisos['anio'] == year_filter) & (resultado_Cat_Permisos['mes'] == month_filter)]
+    elif year_filter != 'Ver Todos' and month_filter == 'Ver Todos':
+        filtered_cat = resultado_Cat_Per[resultado_Cat_Per['anio'] == year_filter]
+        filtered_per = resultado_Per_Cat[resultado_Per_Cat['anio'] == year_filter]
+        filtered_cat_perm = resultado_Cat_Permisos[resultado_Cat_Permisos['anio'] == year_filter]
+    elif year_filter == 'Ver Todos' and month_filter != 'Ver Todos':
+        filtered_cat = resultado_Cat_Per[resultado_Cat_Per['mes'] == month_filter]
+        filtered_per = resultado_Per_Cat[resultado_Per_Cat['mes'] == month_filter]
+        filtered_cat_perm = resultado_Cat_Permisos[resultado_Cat_Permisos['mes'] == month_filter]
     else:
-        # Si se selecciona "Ver Todos", no filtrar
+        # Si se selecciona "Ver Todos" en ambos casos, no se filtra nada
         filtered_cat = resultado_Cat_Per
         filtered_per = resultado_Per_Cat
         filtered_cat_perm = resultado_Cat_Permisos
@@ -324,64 +331,73 @@ with tab2:
           
     st.markdown("###### Por los análisis realizados anteriormente y este, llegamos a la conclución que faltan variables en DGC e IM como para realizar un correcto join, por lo tanto la presentación a partir de aquí será dela última base de datos") 
     
-
-# Pestaña 3: Mapa
-    with tab3:
-        st.subheader('Mapa')
-
-    
-     
-
-with tab4:
+# Pestaña 3: Régimen
+with tab3:
     st.header(':bar_chart: Régimen')
 
- # Filtrar los datos según el año seleccionado previamente (sin filtrar por mes)
-    if year_filter != 'Ver Todos':
+    # Filtrar los datos según el año y el mes seleccionados previamente
+    if year_filter != 'Ver Todos' and month_filter != 'Ver Todos':
+        datos_filtrados_tab4 = Cat_Permisos_agrupado[
+            (Cat_Permisos_agrupado['anio'] == year_filter) & 
+            (Cat_Permisos_agrupado['mes'] == month_filter)
+        ]
+    elif year_filter != 'Ver Todos' and month_filter == 'Ver Todos':
         datos_filtrados_tab4 = Cat_Permisos_agrupado[Cat_Permisos_agrupado['anio'] == year_filter]
+    elif year_filter == 'Ver Todos' and month_filter != 'Ver Todos':
+        datos_filtrados_tab4 = Cat_Permisos_agrupado[Cat_Permisos_agrupado['mes'] == month_filter]
     else:
         datos_filtrados_tab4 = Cat_Permisos_agrupado  # Si selecciona "Ver Todos", no se filtran los datos
 
     # Crear gráfico de barras con Plotly
     fig = px.bar(datos_filtrados_tab4, 
-                 x='anio', 
-                 y='Cantidad', 
-                 color='DSC_REGIME', 
-                 title='Cantidad de Registros por Año y Régimen',
-                 labels={'Cantidad': 'Cantidad', 'anio': 'Año'},
-                 barmode='group')  # Agrupar las barras por año
+                x='anio', 
+                y='Cantidad', 
+                color='DSC_REGIME', 
+                title='Cantidad de Registros por Año y Régimen',
+                labels={'Cantidad': 'Cantidad', 'anio': 'Año'},
+                barmode='group',
+                color_discrete_sequence=['#008080', '#00FFFF', '#98FB98'])   # Agrupar las barras por año
 
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig)
-  
-    
-    
-# Pestaña 5: Gráfico por Tipo de Obra
-with tab5:
+
+# Pestaña 4: Gráfico por Tipo de Obra
+with tab4:
+    st.header(':bar_chart: Tipo de Obra')
+
     # Filtrar los datos de Tipo_de_obra según el año y el mes seleccionados
     if year_filter != 'Ver Todos' and month_filter != 'Ver Todos':
-        datos_filtrados_tab5 = Tipo_de_obra[(Tipo_de_obra['anio'] == year_filter) & 
-                                              (Tipo_de_obra['mes'] == month_filter)]
+        datos_filtrados_tab5 = Tipo_de_obra[
+            (Tipo_de_obra['anio'] == year_filter) & 
+            (Tipo_de_obra['mes'] == month_filter)
+        ]
+    elif year_filter != 'Ver Todos' and month_filter == 'Ver Todos':
+        datos_filtrados_tab5 = Tipo_de_obra[Tipo_de_obra['anio'] == year_filter]
+    elif year_filter == 'Ver Todos' and month_filter != 'Ver Todos':
+        datos_filtrados_tab5 = Tipo_de_obra[Tipo_de_obra['mes'] == month_filter]
     else:
-        datos_filtrados_tab5 = Tipo_de_obra  # Si se selecciona "Ver Todos" en año o mes, no filtrar
+        datos_filtrados_tab5 = Tipo_de_obra  # Si se selecciona "Ver Todos", no filtrar
 
     # Crear gráfico de dispersión con Plotly
     fig = px.scatter(datos_filtrados_tab5, 
-                     x='Tipo_Obra', 
-                     y='Suma_Area_Edificada', 
-                     color='Nuevo_Destino', 
-                     title='Área de Edificación por Tipo de Construcción',
-                     labels={'Suma_Area_Edificada': 'Área Edificada', 'Tipo_Obra': 'Tipo de Construcción'},
-                     )
+                    x='Tipo_Obra', 
+                    y='Suma_Area_Edificada', 
+                    color='Nuevo_Destino', 
+                    title='Área de Edificación por Tipo de Construcción',
+                    labels={'Suma_Area_Edificada': 'Área Edificada', 'Tipo_Obra': 'Tipo de Construcción'},
+                    color_discrete_sequence=['#008080', '#66CDAA', '#7FFFD4', '#00FFFF', '#98FB98']) 
+                    
 
     # Rotar etiquetas del eje X
     fig.update_layout(xaxis_tickangle=-45)
 
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig)
-    
-    
-#Pestaña 6: Gráfico de cantidad de casos por Destino   (se puede dejar esto y o la tabla 7)
-with tab6:
+
+        
+        
+# Pestaña 5: Gráfico de cantidad de casos por Destino
+with tab5:
     st.header(':bar_chart: Destino')
     
     # Filtrar los datos de conteo_destino según el año y el mes seleccionados
@@ -390,6 +406,10 @@ with tab6:
             (casos_por_año_destino['anio'] == year_filter) & 
             (casos_por_año_destino['mes'] == month_filter)
         ]
+    elif year_filter != 'Ver Todos' and month_filter == 'Ver Todos':
+        datos_filtrados_destino = casos_por_año_destino[casos_por_año_destino['anio'] == year_filter]
+    elif year_filter == 'Ver Todos' and month_filter != 'Ver Todos':
+        datos_filtrados_destino = casos_por_año_destino[casos_por_año_destino['mes'] == month_filter]
     else:
         datos_filtrados_destino = casos_por_año_destino  # Si se selecciona "Ver Todos", no filtrar
 
@@ -397,34 +417,61 @@ with tab6:
     fig_destino = px.bar(datos_filtrados_destino, 
                          x='Nuevo_Destino',  # Asegúrate de que la columna se llame así en el DataFrame
                          y='Cantidad', 
+                         color='Nuevo_Destino',  # Colorear cada destino diferente
                          title='Cantidad por Destino',
-                         labels={'Cantidad': 'Cantidad', 'Nuevo_Destino': 'Destino'})
+                         labels={'Cantidad': 'Cantidad', 'Nuevo_Destino': 'Destino'},
+                         color_discrete_sequence=['#008080', '#40E0D0', '#17becf', '#48D1CC', '#B2E2E2']) 
+                        
 
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig_destino)
 
-#Pestaña 7: Gráfico de cantidad de casos por Destino por Año  
-with tab7:
+
+# Pestaña 6: Gráfico de cantidad de casos por Destino por Año  
+with tab6:
     st.header(':bar_chart: Destino por Año')
 
+    # Filtrar los datos de casos_por_año_destino según el año y el mes seleccionados
+    if year_filter != 'Ver Todos' and month_filter != 'Ver Todos':
+        datos_filtrados_año_destino = casos_por_año_destino[
+            (casos_por_año_destino['anio'] == year_filter) & 
+            (casos_por_año_destino['mes'] == month_filter)
+        ]
+    elif year_filter != 'Ver Todos':
+        datos_filtrados_año_destino = casos_por_año_destino[
+            casos_por_año_destino['anio'] == year_filter
+        ]
+    elif month_filter != 'Ver Todos':
+        datos_filtrados_año_destino = casos_por_año_destino[
+            casos_por_año_destino['mes'] == month_filter
+        ]
+    else:
+        datos_filtrados_año_destino = casos_por_año_destino  # Si se selecciona "Ver Todos", no filtrar
+
     # Crear gráfico de barras con Plotly
-      
-    fig_año_destino = px.bar(casos_por_año_destino, 
-                          x='anio', 
-                          y='Cantidad', 
-                          color='Nuevo_Destino', 
-                          title='Cantidad por Año y Destino',
-                          labels={'Cantidad': 'Cantidad', 'anio': 'Año' , 'Nuevo_Destino':'Destino'},
-                          barmode='stack', # Apilar las barras
-                        color_discrete_sequence=['#008080', '#40E0D0', '#17becf', '#48D1CC', '#F5FFFA']) 
-    
+    fig_año_destino = px.bar(datos_filtrados_año_destino, 
+                            x='anio', 
+                            y='Cantidad', 
+                            color='Nuevo_Destino', 
+                            title='Cantidad por Año y Destino',
+                            labels={'Cantidad': 'Cantidad', 'anio': 'Año', 'Nuevo_Destino': 'Destino'},
+                            barmode='stack',  # Apilar las barras
+                            color_discrete_sequence=['#008080', '#40E0D0', '#17becf', '#48D1CC', '#B2E2E2']) 
 
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig_año_destino)
-    
-#Ver el promedio de demora en días entre que se incia el expediente y se otorga el permiso
-with tab8:
+
+#Pestaña 7: Gráfico de cantidad de casos por Destino por Año  
+with tab7:
     st.header(':chart_with_downwards_trend: Promedio de Tiempos de Demora por Año')
+    
+        # Filtrar los datos de Cat_Permisos solo según el año seleccionado
+    if year_filter != 'Ver Todos':
+        PROM_DEMORA_por_año = PROM_DEMORA_por_año[
+            PROM_DEMORA_por_año['año_ini'] == year_filter
+        ]
+    else:
+        PROM_DEMORA_por_año = PROM_DEMORA_por_año  # Si se selecciona "Ver Todos", no filtrar
 
     # Crear gráfico de líneas
     fig_promedio_demora = px.line(PROM_DEMORA_por_año, 
@@ -433,11 +480,14 @@ with tab8:
                             title='Promedio de Tiempos de Demora por Año',
                             labels={'Promedio_T_Demora': 'Promedio de Demora', 'año_ini': 'Año', 'Nuevo_Destino':'Destino'},
                             markers=True,  # Agregar marcadores a las líneas
-                            color_discrete_sequence=['#FF5733'])  # Cambia el color de la línea (Ejemplo: rojo-naranja)
+                            color_discrete_sequence=['#00CED1'])  # Cambia el color de la línea (Ejemplo: rojo-naranja)
     
     
-
-
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig_promedio_demora)
+
+    
+# Pestaña 8: Mapa
+with tab8:
+    st.subheader('Mapa')
     
