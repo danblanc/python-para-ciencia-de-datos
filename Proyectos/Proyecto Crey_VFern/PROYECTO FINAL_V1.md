@@ -12,8 +12,11 @@
 
 ## **ANÁLISIS Y CONCLUSIONES:**
 
-### Padrones Urbanos de la Dirección Nacional de Catastro tiene información de los padrones de todo el país. Tiene aproximadamente un millon y medio de registros, y 15 variables. Permisos de construcción tiene información de todos los permisos solicitados y aprobados por padrón y superficie afectada por el mismo publicado por la Intendencia Municipal de Montevideo. Tiene aproximadamente unos 39500 registros con informaciónd de 10 variables. 
+### Padrones Urbanos de la Dirección Nacional de Catastro tiene información de los padrones de todo el país. Tiene aproximadamente un millon y medio de registros, y 15 variables. Permisos de construcción tiene información de todos los permisos solicitados y aprobados por padrón y superficie afectada por el mismo publicado por la Intendencia Municipal de Montevideo. Tiene aproximadamente unos 39500 registros con informaciónd de 10 variables.
 
+### Desarrollando un análisis descriptivo de las bases, la base de la IM con datos de catastro se encuentra un poco desactualizada ya que las variables de catastro para por ejemplo categoría en 2023  es "Desconocido" esto significa que no tiene información de catastro.
+
+### En los tiempos de demora se nota una efectividad mayor a partir del los 2000 en la IM.
 
 ### Links de acceso a las bases:
 
