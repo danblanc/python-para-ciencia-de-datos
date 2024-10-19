@@ -1,0 +1,13 @@
+Variables;Tipo ;Descripción
+EXPEDIENTE;object;Expediente IM
+FECHA_INI;object;Fecha de inicio del permiso
+FECHA_APRO;object;Fecha de aprobado del permiso
+PADRON;int64;Padrón
+UNIDAD;object;Unidad o Apto
+DSC_TIPO_T;object;Descripción Obra
+DSC_DESTIN;object;Descripción destino
+DSC_REGIME;object;Régimen
+DSC_TIPO_O;object;Descripción tipo de obra
+DSC_CATEGO;object;Descripción Categoría de la construcción
+CONSTRUCTO;object;Constructor
+AREA_EDIF;float64;Area Edificada asignada al permiso

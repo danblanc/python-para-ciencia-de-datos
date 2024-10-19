@@ -34,10 +34,10 @@ dtypes = {
 }
 
 # Leer el archivo CSV y asignar los nombres a las columnas
-P_Urbanos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/DatosAbiertosDNC(2024-09)/Padrones Urbanos.csv',
+P_Urbanos = pd.read_csv('C:/Users/Nico/Desktop/Python/DatosAbiertosDNC(2024-09)/Padrones Urbanos.csv',
 sep=',', encoding='cp1252', header=None, names=Variables, dtype={4: str, 5: str}  )
 
-Dic_Cat = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables catastro.csv', sep=';', encoding='latin1')
+Dic_Cat = pd.read_csv('C:/Users/Nico/Desktop/Python/Diccionario variables catastro.csv', sep=';', encoding='latin1')
 
 # Mostrar las primeras filas del archivo
 P_Urbanos.head(8)
@@ -72,8 +72,8 @@ resultado_Cat_Per=filtro_dep.groupby(['anio','mes']).size().reset_index(name ='C
 # %%
 #Permisos Intendencia Montevideo
 # Leer el archivo CSV y asignar los nombres a las columnas
-Permisos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/permisos_construccion.csv', sep=';')
-Dic_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario variables permisos.csv', sep=';', encoding='latin1')
+Permisos = pd.read_csv('C:/Users/Nico/Desktop/Python/permisos_construccion.csv', sep=';')
+Dic_Per = pd.read_csv('C:/Users/Nico/Desktop/Python/Diccionario variables permisos.csv', sep=';', encoding='latin1')
 
 Permisos.rename(columns={'padron': 'pad'}, inplace=True)
 # Mostrar las primeras filas del archivo
@@ -118,30 +118,64 @@ per_cat = pd.merge(p_sin_duplicados,filtro_dep, on=['anio','mes','pad'], how='le
 #################  Catastro  e Intendencia Montevideo
 
 # Leer el archivo CSV 
-Cat_Permisos = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
-Dic_Cat_Per = pd.read_csv('C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
+
+from dbfread import DBF
+import pandas as pd
+
+# Ruta del archivo .dbf
+dbf_file = 'C:/Users/Nico/Desktop/Python/v_ce_permisos_construccion_geom/v_ce_permisos_construccion_geom.dbf'
+
+# Leer el archivo DBF
+dbf_table = DBF(dbf_file, encoding='latin1')
+
+# Convertir a un DataFrame de pandas
+df = pd.DataFrame(iter(dbf_table))
+
+# Guardar el DataFrame como un archivo CSV
+df.to_csv('C:/Users/Nico/Desktop/Python/v_ce_permisos_construccion_geom/v_ce_permisos_construccion_geom.csv', index=False, sep=';')
+
+#Levantar nuevo archivo descargado de la intendencia con catastro incorporado
+Cat_Permisos = pd.read_csv('C:/Users/Nico/Desktop/Python/v_ce_permisos_construccion_geom/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
+Dic_Cat_Per = pd.read_csv('C:/Users/Nico/Desktop/Python/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
 
 Cat_Permisos.head()
 
-# Reemplazar las comas por puntos o eliminar las comas si los números son enteros
-Cat_Permisos['AREA_EDIF'] = Cat_Permisos['AREA_EDIF'].str.replace(',', '').astype(float)
+#Levantar nuevo archivo descargado de la intendencia con catastro incorporado
+Cat_Permisos = pd.read_csv('C:/Users/Nico/Desktop/Python/v_ce_permisos_construccion_geom/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
 
-# Convertir la columna a enteros
-Cat_Permisos['AREA_EDIF'] = Cat_Permisos['AREA_EDIF'].astype('Int64')
+# Convertir a formato datetime
+Cat_Permisos['FECHA_APRO'] = pd.to_datetime(df['FECHA_APRO'], format='%Y/%m/%d')
 
-Cat_Permisos = Cat_Permisos[Cat_Permisos['ANIO_APRO'] >= 1997]
+# Convertir la columna FECHA_INI a datetime utilizando .loc[]
+Cat_Permisos['FECHA_INI'] = pd.to_datetime(df['FECHA_INI'], format='%Y/%m/%d')
 
-Cat_Permisos = Cat_Permisos.rename(columns={'ANIO_APRO': 'anio'})
+# Extraer el año
+Cat_Permisos['anio'] = Cat_Permisos['FECHA_APRO'].dt.year
 
-Cat_Permisos = Cat_Permisos.rename(columns={'MES_APRO': 'mes'})
+# Extraer el mes
+Cat_Permisos['mes'] = Cat_Permisos['FECHA_APRO'].dt.month
 
+#Filtro años anteriores superiores a 1997
+Cat_Permisos = Cat_Permisos[Cat_Permisos['anio'] >= 1997]
 
-# Ver los tipos de datos de cada columna
-tipos_datos = Cat_Permisos.dtypes
-print(tipos_datos)
+Cat_Permisos['T_Demora'] = (Cat_Permisos['FECHA_APRO'] - Cat_Permisos['FECHA_INI']).dt.days
+Cat_Permisos['año_ini'] = Cat_Permisos['FECHA_INI'].dt.year
 
-## Contar la cantidad de registros por año
-resultado_Cat_Permisos = Cat_Permisos.groupby(['anio','mes']).size().reset_index(name='Cantidad')
+PROM_DEMORA_por_año = Cat_Permisos.groupby('año_ini')['T_Demora'].mean().reset_index()
+
+PROM_DEMORA_por_año.rename(columns={'T_Demora': 'Promedio_T_Demora'}, inplace=True)
+
+PROM_DEMORA_por_año['Promedio_T_Demora'] = PROM_DEMORA_por_año['Promedio_T_Demora'].astype(int)
+
+#Recodificar Tipo de obra
+mapeo_DSC_REGIME = {
+    'ComÃƒÂºn': 'PC',
+    'IncorporaciÃƒÂ³n': 'PH',
+    'Propiedad Horizontal': 'PH',
+    'Desconocido': 'Desconocido'     
+}
+
+Cat_Permisos['DSC_REGIME'] = Cat_Permisos['DSC_REGIME'].map(mapeo_DSC_REGIME)
 
 #Recodificar destinos
 mapeo_DSC_DESTIN = {
@@ -164,43 +198,11 @@ mapeo_DSC_DESTIN = {
 
 Cat_Permisos['Nuevo_Destino'] = Cat_Permisos['DSC_DESTIN'].map(mapeo_DSC_DESTIN)
 
-#Recodificar destinos
-mapeo_DSC_REGIME = {
-    'Común': 'Común',
-    'Incorporaci??n': 'Propiedad Horizontal',
-    'Propiedad Horizontal' : 'Propiedad Horizontal',
-    'Desconocido': 'Sin codigo de régimen'         
-}
-
-Cat_Permisos['DSC_REGIME'] = Cat_Permisos['DSC_REGIME'].map(mapeo_DSC_REGIME)
-
-Cat_Permisos['Cantidad'] = 1
-
-
-Cat_Permisos_agrupado = Cat_Permisos.groupby(['anio','mes','DSC_REGIME']).size().reset_index(name='Cantidad')
-
-conteo_destino = Cat_Permisos['Nuevo_Destino'].value_counts().reset_index()
-conteo_destino.columns = ['Destino', 'Cantidad']
-
-casos_por_año_destino = Cat_Permisos.groupby(['anio','mes','Nuevo_Destino']).size().reset_index(name='Cantidad')
-
-
-Cat_Permisos['FECHA_INI'] = pd.to_datetime(Cat_Permisos['FECHA_INI'], format='%d/%m/%Y', errors='coerce')
-Cat_Permisos['FECHA_APRO'] = pd.to_datetime(Cat_Permisos['FECHA_APRO'], format='%d/%m/%Y', errors='coerce')
-
-Cat_Permisos['T_Demora'] = (Cat_Permisos['FECHA_APRO'] - Cat_Permisos['FECHA_INI']).dt.days
-Cat_Permisos['año_ini'] = Cat_Permisos['FECHA_INI'].dt.year
-
-PROM_DEMORA_por_año = Cat_Permisos.groupby('año_ini')['T_Demora'].mean().reset_index()
-
-PROM_DEMORA_por_año.rename(columns={'T_Demora': 'Promedio_T_Demora'}, inplace=True)
-
-PROM_DEMORA_por_año['Promedio_T_Demora'] = PROM_DEMORA_por_año['Promedio_T_Demora'].astype(int)
-
 #Recodificar Tipo de obra
 mapeo_DSC_TIPO_O = {
     'Obra Nueva': 'Obra Nueva',
     'Regularizacion - Año' : 'Regularización',
+    'Modificacion en Obra' : 'Otros',
     'Reforma': 'Reforma',
     'Reforma a Regularizar': 'Regularización',
     'Incorporacion A.P.H.': 'Incorporacion P.H.',
@@ -219,13 +221,17 @@ mapeo_DSC_TIPO_O = {
     'A ocupar':'Otros',
     'Cielo A. Autorizada':'Otros',
     'Cielo A. A regularizar':'Otros',
-    '  ':'Sin tipo de obra definido',
+    '       ':'Sin tipo de obra definido',
     'Incorporaci??n a PH': 'Incorporacion P.H.'         
 }
 
 Cat_Permisos['Tipo_Obra'] = Cat_Permisos['DSC_TIPO_O'].map(mapeo_DSC_TIPO_O)
 
-# Agrupamos por 'anio', 'mes', 'Nuevo_Destino', 'Tipo_Obra' y sumamos 'AREA_EDIF' y 'Cantidad'
+Cat_Permisos['Cantidad'] = 1
+
+casos_por_año_destino = Cat_Permisos.groupby(['anio','mes','Nuevo_Destino']).size().reset_index(name='Cantidad')
+
+# Agrupamos por 'ANIO_APRO', 'MES_APRO', 'Nuevo_Destino', 'Tipo_Obra' y sumamos 'AREA_EDIF' y 'Cantidad'
 Tipo_de_obra = Cat_Permisos.groupby(['anio', 'mes', 'Nuevo_Destino', 'Tipo_Obra'])[['AREA_EDIF', 'Cantidad']].sum().reset_index()
 
 # Renombramos las columnas directamente al hacer el reset_index
@@ -234,10 +240,15 @@ Tipo_de_obra.columns = ['anio', 'mes', 'Nuevo_Destino', 'Tipo_Obra', 'Suma_Area_
 # Mostramos el DataFrame con los nuevos nombres
 print(Tipo_de_obra)
 
+## Contar la cantidad de registros por año
+resultado_Cat_Permisos = Cat_Permisos.groupby(['anio','mes']).size().reset_index(name='Cantidad')
+
+Cat_Permisos_agrupado = Cat_Permisos.groupby(['anio','mes','DSC_REGIME']).size().reset_index(name='Cantidad')
+
 
 # %%
 # Colocar la imagen en el encabezado
-st.image("C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Imagen carátula.jpg", width=700)
+st.image("C:/Users/Nico/Desktop/Python/Carátula.jpg", width=700)
 
 st.subheader('Análisis descriptivo y comparativo')
 
@@ -257,6 +268,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases',
 with tab1:
     st.header('Base de Datos')
     st.markdown('###### Pueden descargarse las base de datos y diccionarios.')
+    st.markdown('*No se aplican filtros por ser las bases.')
     
     
     # Crear un selectbox en la primera pestaña
@@ -489,8 +501,8 @@ with tab7:
 with tab8:  
     st.header('Mapa desde Shapefile')
     
-    # Cargar el shapefile (cambia la ruta al archivo .shp que descargaste)
-    shapefile_path = 'C:/Users/vfernand/Desktop/archivos proyecto PYTHON/v_ce_permisos_construccion_geom/v_ce_permisos_construccion_geom.shp'
+     # Cargar el shapefile 
+    shapefile_path = 'C:/Users/Nico/Desktop/Python/v_ce_permisos_construccion_geom/v_ce_permisos_construccion_geom.shp'
     gdf = gpd.read_file(shapefile_path)
 
     # Crear un mapa base centrado en Montevideo
@@ -505,5 +517,3 @@ with tab8:
 
     # Mostrar el mapa en Streamlit
     st_folium(mapa, width=700)
-
-

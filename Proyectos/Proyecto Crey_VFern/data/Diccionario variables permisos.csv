@@ -1,0 +1,11 @@
+Variable;Tipo;Descripción
+pad;int64;Padrón
+destino;object;Destino modificado o a modificar
+area;float64;Superfie a modificar
+calle;object;Calle
+puerta;float64;N° Puerta
+letra;object;Block
+anio;int64;Año de la aprobación
+mes;int64;Mes de la aprobación
+expediente;object;Expediente de la Intendencia
+tipo_obra;object;Tipo de obra a realizar
