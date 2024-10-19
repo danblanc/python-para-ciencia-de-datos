@@ -268,7 +268,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases',
 with tab1:
     st.header('Base de Datos')
     st.markdown('###### Pueden descargarse las base de datos y diccionarios.')
-    st.markdown('*No se aplican filtros por ser las bases.')
+    st.markdown('###### No se aplican filtros por ser las bases.')
     
     
     # Crear un selectbox en la primera pestaña
@@ -498,22 +498,6 @@ with tab7:
 
 
 # Pestaña 8: Mapa
-with tab8:  
-    st.header('Mapa desde Shapefile')
+with tab8:
+    st.header('Mapa')  
     
-     # Cargar el shapefile 
-    shapefile_path = 'C:/Users/Nico/Desktop/Python/v_ce_permisos_construccion_geom/v_ce_permisos_construccion_geom.shp'
-    gdf = gpd.read_file(shapefile_path)
-
-    # Crear un mapa base centrado en Montevideo
-    mapa = folium.Map(location=[-34.9011, -56.1645], zoom_start=12)
-
-    # Añadir el shapefile al mapa
-    for _, row in gdf.iterrows():
-        folium.GeoJson(
-            row['geometry'],
-            popup=f"PADRON: {row.get('PADRON', 'Sin información')}"  # Asegúrate de usar el nombre correcto de la columna
-        ).add_to(mapa)
-
-    # Mostrar el mapa en Streamlit
-    st_folium(mapa, width=700)
