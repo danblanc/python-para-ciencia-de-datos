@@ -32,7 +32,7 @@
 
 #### Permisos solicitados y aprobados con información de catastro - Fuente: Intendencia Municipal de Montevideo - https://intgis.montevideo.gub.uy/sit/php/common/datos/generar_zip2.php?nom_tab=v_mdg_parcelas_geom&tipo=gis
 
-### Se realizaron los ajustes necesarios para analizar la información contenida en esta base (conversión de datos, reecateorizaciones, cálculo de días de demora entre que se inicia el trámite y se aprueba, etc.)
+### Se realizaron los ajustes necesarios para analizar la información contenida en esta base (conversión de datos, recateorizaciones, cálculo de días de demora entre que se inicia el trámite y se aprueba, etc.)
 
 ### En el dashboard se presentan varios gráficos:
 
@@ -41,15 +41,15 @@
 
 ### 2. Área de edificación por tipo de construcción. Muestra el área de edificación por tipo de construcción (Obra nueva, reforma, regularización, demolición, incorporación a propiedad horizontal, sin tipo de obra definido y otros), pero a la vez muestra el destino de esa construcción, si es vivienda, industria, comercio, sin destino definido o varios destinos. 
 
-### 3. Cantidad por destino.Muestra la cantidad de registros por destino de la construcción, vivienda, industria, sin destino definido y varios destinos. 
+### 3. Cantidad por Categoría.Muestra la cantidad de registros por categoría de la construcción, economico, , mediano, suntuoso y desconosido. Aquí se aprecia que a partir de 2023 no está actualizada esta información.  
 
-### 4. Cantidad por año y destino. La misma información del gráfico anterior pero por año, y la información es desde 1997 a la fecha. 
+### 4. Cantidad por año y destino. Muestra la cantidad de registros por destino de la construcción, pero por año, y la información es desde 1997 a la fecha. 
 
-### 5. Promedio de tiempos de demora por año. Muestra la evolución del promedio de tiempo de demora entre que se solicita el permiso y se aprueba, desde 1997 a la fecha. 
+### 5. Promedio de tiempos de demora por año. Muestra la evolución del promedio de tiempo de demora entre que se solicita el permiso y se aprueba, desde 1997 a la fecha. Aqui observamos que los tiempos de demora en los primeros años es muy superior a la que hay hoy en día.
 
 ### Tanbién se muestra un cuadro comparativo con la cantidad de registros por año para las tres bases utilizadas. 
 
-### Finalmente se presenta un mapa de la ciudad de Montevideo. 
+### Finalmente se presenta un mapa de la ciudad de Montevideo como imagen ya que al subir los shape pesaba mucho y se volvía muy largo el proceso.
 
 ### En la primera pestaña se presentan los links a las tres bases y además se puede seleccionar una. 
 
