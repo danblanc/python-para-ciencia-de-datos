@@ -1,16 +1,16 @@
 #### Proyecto C.Rey y V.Fernandez
 
-# ANÁLISIS DE PERMISOS DE OBRA DE LA INTENDENCIA MUNICIPAL DE MONTEVIDEO Y REGISTRO EN LA DIRECCIÓN NACIONAL DE CATASTRO
+# **ANÁLISIS DE PERMISOS DE OBRA DE LA INTENDENCIA MUNICIPAL DE MONTEVIDEO Y REGISTRO EN LA DIRECCIÓN NACIONAL DE CATASTRO**
 
 
-## OBJETIVO:
+## **OBJETIVO:**
 
 ### En primera instancia el objetivo del proyecto era verificar la demora en la actualización de las mejoras realizadas en los padrones de Montevideo por parte de la Dirección Nacional de Catastro. 
 ### Con este objetivo se analizaron las bases de Padrones Urbanos a nivel nacional, con la fecha de la última declaración, que registra todas las superficies afectadas, publicado por la Dirección de Catastro y de los permisos de construcción solicitados publicado por la Intendencia Municipal de Montevideo. 
 
 
 
-## ANÁLISIS Y CONCLUSIONES:
+## **ANÁLISIS Y CONCLUSIONES:**
 
 ### Padrones Urbanos de la Dirección Nacional de Catastro tiene información de los padrones de todo el país. Tiene aproximadamente un millon y medio de registros, y 15 variables. Permisos de construcción tiene información de todos los permisos solicitados y aprobados por padrón y superficie afectada por el mismo publicado por la Intendencia Municipal de Montevideo. Tiene aproximadamente unos 39500 registros con informaciónd de 10 variables. 
 
@@ -55,9 +55,9 @@
 
 ### Se adjuntan: 
 
-#### 1. Archivo Jupyter Notebook: ""
-#### 2. Archivo Python, para correr el dashboard: ""
-#### 3. Archivo txt, con listado de los paquetes utilizados.
+* 1. Archivo Jupyter Notebook: ""
+* 2. Archivo Python, para correr el dashboard: ""
+* 3. Archivo txt, con listado de los paquetes utilizados.
 
 
 
