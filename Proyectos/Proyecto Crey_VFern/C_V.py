@@ -7,9 +7,8 @@ import altair as alt
 import plotly.express as px
 import geopandas as gpd
 import contextily as ctx
-import folium as folium
-
-
+import folium 
+from streamlit_folium import st_folium
 
 # Definir los nombres de las columnas
 Variables= ['cod_reg', 'cod_dep', 'cod_loc', 'pad', 'block', 'EP', 'uni', 'sup_predio','sup_edificada', 'V_cat_terreno',
@@ -236,8 +235,6 @@ Tipo_de_obra.columns = ['anio', 'mes', 'Nuevo_Destino', 'Tipo_Obra', 'Suma_Area_
 print(Tipo_de_obra)
 
 
-
-
 # %%
 # Colocar la imagen en el encabezado
 st.image("C:/Users/vfernand/Desktop/archivos proyecto PYTHON/Imagen carátula.jpg", width=700)
@@ -255,7 +252,7 @@ st.sidebar.header('Filtros')
 
 
 # Creo las tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases de datos', 'Análisis por año' , ':bar_chart: Régimen', 'Tipo de obra', ':bar_chart: Destino', ':bar_chart: Destino por Año', ':chart_with_downwards_trend: Tiempos de Demora', 'Mapa'])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases', 'Análisis/año' , ':bar_chart: Régimen', 'Tipo de obra', ':bar_chart: Destino', ':bar_chart: Destino/Año', ':chart_with_downwards_trend: Tiempos/Demora', 'Mapa'])
 
 with tab1:
     st.header('Base de Datos')
@@ -487,29 +484,26 @@ with tab7:
     # Mostrar el gráfico en Streamlit
     st.plotly_chart(fig_promedio_demora)
 
-    
+
 # Pestaña 8: Mapa
-with tab8:
-    st.header('Mapa desde Shapefile con coordenadas x e y')
+with tab8:  
+    st.header('Mapa desde Shapefile')
     
-    import geopandas as gpd
-import folium
-from IPython.display import display
+    # Cargar el shapefile (cambia la ruta al archivo .shp que descargaste)
+    shapefile_path = 'C:/Users/vfernand/Desktop/archivos proyecto PYTHON/v_ce_permisos_construccion_geom/v_ce_permisos_construccion_geom.shp'
+    gdf = gpd.read_file(shapefile_path)
 
-# Cargar el shapefile (cambia la ruta al archivo .shp que descargaste)
-shapefile_path = 'C:/Users/vfernand/Desktop/archivos proyecto PYTHON/v_ce_permisos_construccion_geom/v_ce_permisos_construccion_geom.shp'
-gdf = gpd.read_file(shapefile_path)
+    # Crear un mapa base centrado en Montevideo
+    mapa = folium.Map(location=[-34.9011, -56.1645], zoom_start=12)
 
-# Crear un mapa base centrado en Montevideo
-mapa = folium.Map(location=[-34.9011, -56.1645], zoom_start=12)
+    # Añadir el shapefile al mapa
+    for _, row in gdf.iterrows():
+        folium.GeoJson(
+            row['geometry'],
+            popup=f"PADRON: {row.get('PADRON', 'Sin información')}"  # Asegúrate de usar el nombre correcto de la columna
+        ).add_to(mapa)
 
-# Añadir el shapefile al mapa
-for _, row in gdf.iterrows():
-    folium.GeoJson(
-        row['geometry'],
-        popup=f"PADRON: {row.get('PADRON', 'Sin información')}"  # Asegúrate de usar el nombre correcto de la columna
-    ).add_to(mapa)
+    # Mostrar el mapa en Streamlit
+    st_folium(mapa, width=700)
 
-# Mostrar el mapa
-display(mapa)
 
