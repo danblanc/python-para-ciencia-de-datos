@@ -9,6 +9,7 @@ import geopandas as gpd
 import contextily as ctx
 import folium 
 from streamlit_folium import st_folium
+from folium.plugins import MarkerCluster
 
 # Definir los nombres de las columnas
 Variables= ['cod_reg', 'cod_dep', 'cod_loc', 'pad', 'block', 'EP', 'uni', 'sup_predio','sup_edificada', 'V_cat_terreno',
@@ -237,18 +238,23 @@ Tipo_de_obra = Cat_Permisos.groupby(['anio', 'mes', 'Nuevo_Destino', 'Tipo_Obra'
 # Renombramos las columnas directamente al hacer el reset_index
 Tipo_de_obra.columns = ['anio', 'mes', 'Nuevo_Destino', 'Tipo_Obra', 'Suma_Area_Edificada', 'Suma_Cantidad']
 
-# Mostramos el DataFrame con los nuevos nombres
-print(Tipo_de_obra)
-
 ## Contar la cantidad de registros por año
 resultado_Cat_Permisos = Cat_Permisos.groupby(['anio','mes']).size().reset_index(name='Cantidad')
 
 Cat_Permisos_agrupado = Cat_Permisos.groupby(['anio','mes','DSC_REGIME']).size().reset_index(name='Cantidad')
 
+# Agrupación por categoría
+Cat_Permisos_agrupado_DSC_CATEGO = Cat_Permisos.groupby(['anio','mes','DSC_CATEGO']).size().reset_index(name='Cantidad')
+
+# Configuración de la página 
+st.set_page_config(page_title=" ", layout="wide")
+
+
+
 
 # %%
-# Colocar la imagen en el encabezado
-st.image("C:/Users/Nico/Desktop/Python/Carátula.jpg", width=700)
+# Colocar la imagen en el encabezado de manera responsiva
+st.image("C:/Users/Nico/Desktop/Python/Carátula.jpg", use_column_width='always')
 
 st.subheader('Análisis descriptivo y comparativo')
 
@@ -263,7 +269,7 @@ st.sidebar.header('Filtros')
 
 
 # Creo las tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases', 'Análisis/año' , ':bar_chart: Régimen', 'Tipo de obra', ':bar_chart: Destino', ':bar_chart: Destino/Año', ':chart_with_downwards_trend: Tiempos/Demora', 'Mapa'])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([':skin-tone-6: Bases', ':skin-tone-6: Análisis por año y mes' , ':bar_chart: Régimen', ':bar_chart: Tipo de obra', ':bar_chart: Categoría de la Construcción', ':bar_chart: Destino/Año', ':chart_with_downwards_trend: Tiempos/Demora', ':world_map: Mapa'])
 
 with tab1:
     st.header('Base de Datos')
@@ -293,7 +299,7 @@ with tab1:
    
 # Pestaña 2: Conteo por año 
 with tab2:
-    st.subheader('Bases agrupadas por año')
+    st.subheader('Bases agrupadas por año y mes')
     
    # Opción para seleccionar el año, incluyendo "Ver Todos"
     year_filter = st.sidebar.selectbox('Selecciona un año:', ['Ver Todos'] + sorted(filtro_dep['anio'].unique()))
@@ -406,35 +412,33 @@ with tab4:
 
         
         
-# Pestaña 5: Gráfico de cantidad de casos por Destino
 with tab5:
-    st.header(':bar_chart: Destino')
+    st.header(':bar_chart: Categoría de la Construcción')
     
-    # Filtrar los datos de conteo_destino según el año y el mes seleccionados
+    # Filtrar los datos de Cat_Permisos_agrupado_DSC_CATEGO según el año y el mes seleccionados
     if year_filter != 'Ver Todos' and month_filter != 'Ver Todos':
-        datos_filtrados_destino = casos_por_año_destino[
-            (casos_por_año_destino['anio'] == year_filter) & 
-            (casos_por_año_destino['mes'] == month_filter)
+        datos_filtrados_catego = Cat_Permisos_agrupado_DSC_CATEGO[
+            (Cat_Permisos_agrupado_DSC_CATEGO['anio'] == year_filter) & 
+            (Cat_Permisos_agrupado_DSC_CATEGO['mes'] == month_filter)
         ]
     elif year_filter != 'Ver Todos' and month_filter == 'Ver Todos':
-        datos_filtrados_destino = casos_por_año_destino[casos_por_año_destino['anio'] == year_filter]
+        datos_filtrados_catego = Cat_Permisos_agrupado_DSC_CATEGO[Cat_Permisos_agrupado_DSC_CATEGO['anio'] == year_filter]
     elif year_filter == 'Ver Todos' and month_filter != 'Ver Todos':
-        datos_filtrados_destino = casos_por_año_destino[casos_por_año_destino['mes'] == month_filter]
+        datos_filtrados_catego = Cat_Permisos_agrupado_DSC_CATEGO[Cat_Permisos_agrupado_DSC_CATEGO['mes'] == month_filter]
     else:
-        datos_filtrados_destino = casos_por_año_destino  # Si se selecciona "Ver Todos", no filtrar
+        datos_filtrados_catego = Cat_Permisos_agrupado_DSC_CATEGO  # Si se selecciona "Ver Todos", no filtrar
 
     # Crear gráfico de barras con Plotly
-    fig_destino = px.bar(datos_filtrados_destino, 
-                         x='Nuevo_Destino',  # Asegúrate de que la columna se llame así en el DataFrame
-                         y='Cantidad', 
-                         color='Nuevo_Destino',  # Colorear cada destino diferente
-                         title='Cantidad por Destino',
-                         labels={'Cantidad': 'Cantidad', 'Nuevo_Destino': 'Destino'},
-                         color_discrete_sequence=['#008080', '#40E0D0', '#17becf', '#48D1CC', '#B2E2E2']) 
-                        
+    fig_catego = px.bar(datos_filtrados_catego, 
+                        x='DSC_CATEGO',  # Asegúrate de que la columna se llame así en el DataFrame
+                        y='Cantidad', 
+                        color='DSC_CATEGO',  # Colorear cada destino diferente
+                        title='Cantidad por Categoría de la Construcción',
+                        labels={'Cantidad': 'Cantidad', 'DSC_CATEGO': 'Categoría'},
+                        color_discrete_sequence=['#008080', '#40E0D0', '#17becf', '#48D1CC', '#B2E2E2']) 
 
     # Mostrar el gráfico en Streamlit
-    st.plotly_chart(fig_destino)
+    st.plotly_chart(fig_catego)
 
 
 # Pestaña 6: Gráfico de cantidad de casos por Destino por Año  
@@ -497,7 +501,16 @@ with tab7:
     st.plotly_chart(fig_promedio_demora)
 
 
-# Pestaña 8: Mapa
+# Pestaña 8
 with tab8:
-    st.header('Mapa')  
+    st.header(':world_map: Mapa') 
     
+    st.subheader('Mapa con los permisos otorgados.') 
+    
+    # Colocar la imagen en el encabezado de manera responsiva
+    st.image("C:/Users/Nico/Desktop/Python/Permisos_mon_1.png", use_column_width='always')
+       
+    st.subheader('Mapa con los permisos otorgados, área concentrada.') 
+    
+    # Colocar la imagen en el encabezado de manera responsiva
+    st.image("C:/Users/Nico/Desktop/Python/Permisos_mon_2.png" , use_column_width='always')    
