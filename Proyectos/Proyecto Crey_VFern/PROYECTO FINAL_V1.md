@@ -54,7 +54,7 @@
 
 ### Finalmente se presenta un mapa de la ciudad de Montevideo como imagen ya que al subir los shape pesaba mucho y se volvía muy largo el proceso.
 
-### En la primera pestaña se presentan los links a las tres bases y además se puede seleccionar una. 
+### En la primera pestaña se presentan los links a las tres bases y diccionario de las variables donde se pueden seleccionar de a una. 
 
 ### Se adjuntan: 
 

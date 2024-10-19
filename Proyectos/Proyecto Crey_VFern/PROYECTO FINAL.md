@@ -14,6 +14,10 @@
 
 ### Padrones Urbanos de la Dirección Nacional de Catastro tiene información de los padrones de todo el país. Tiene aproximadamente un millon y medio de registros, y 15 variables. Permisos de construcción tiene información de todos los permisos solicitados y aprobados por padrón y superficie afectada por el mismo publicado por la Intendencia Municipal de Montevideo. Tiene aproximadamente unos 39500 registros con informaciónd de 10 variables. 
 
+### Desarrollando un análisis descriptivo de las bases, la base de la IM con datos de catastro se encuentra un poco desactualizada ya que las variables de catastro para por ejemplo categoría en 2023  es "Desconocido" esto significa que no tiene información de catastro.
+
+### En los tiempos de demora se nota una efectividad mayor a partir del los 2000 en la IM.
+
 
 ### Links de acceso a las bases:
 
@@ -37,21 +41,24 @@
 ### En el dashboard se presentan varios gráficos:
 
 
+### En el dashboard se presentan varios gráficos:
+
+
 ### 1. Cantidad de registros por año y régimen. Muestra la información de la cantidad de registros por año y régimen de propiedad (común, propiedad horizontal y sin código de régimen)
 
 ### 2. Área de edificación por tipo de construcción. Muestra el área de edificación por tipo de construcción (Obra nueva, reforma, regularización, demolición, incorporación a propiedad horizontal, sin tipo de obra definido y otros), pero a la vez muestra el destino de esa construcción, si es vivienda, industria, comercio, sin destino definido o varios destinos. 
 
-### 3. Cantidad por destino.Muestra la cantidad de registros por destino de la construcción, vivienda, industria, sin destino definido y varios destinos. 
+### 3. Cantidad por Categoría.Muestra la cantidad de registros por categoría de la construcción, economico, , mediano, suntuoso y desconosido. Aquí se aprecia que a partir de 2023 no está actualizada esta información.  
 
-### 4. Cantidad por año y destino. La misma información del gráfico anterior pero por año, y la información es desde 1997 a la fecha. 
+### 4. Cantidad por año y destino. Muestra la cantidad de registros por destino de la construcción, pero por año, y la información es desde 1997 a la fecha. 
 
-### 5. Promedio de tiempos de demora por año. Muestra la evolución del promedio de tiempo de demora entre que se solicita el permiso y se aprueba, desde 1997 a la fecha. 
+### 5. Promedio de tiempos de demora por año. Muestra la evolución del promedio de tiempo de demora entre que se solicita el permiso y se aprueba, desde 1997 a la fecha. Aqui observamos que los tiempos de demora en los primeros años es muy superior a la que hay hoy en día.
 
 ### Tanbién se muestra un cuadro comparativo con la cantidad de registros por año para las tres bases utilizadas. 
 
-### Finalmente se presenta un mapa de la ciudad de Montevideo. 
+### Finalmente se presenta un mapa de la ciudad de Montevideo como imagen ya que al subir los shape pesaba mucho y se volvía muy largo el proceso.
 
-### En la primera pestaña se presentan los links a las tres bases y además se puede seleccionar una. 
+### En la primera pestaña se presentan los links a las tres bases y diccionario de las variables donde se pueden seleccionar de a una. 
 
 ### Se adjuntan: 
 
