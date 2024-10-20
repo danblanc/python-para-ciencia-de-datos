@@ -28,7 +28,7 @@ __Datos originales:__
 
 	Se utilizaron 37 imágenes urbanas y rurales en escala 1:2029 generadas por el área de Geomática
 
-•__Nota:__
+__Nota:__
 
 	Se suprimió el valor de la variable api_key para poder publicar este notebook
 	en forma segura en git, se deberá agregar el valor para ejecutarlo.
