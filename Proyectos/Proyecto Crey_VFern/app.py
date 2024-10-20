@@ -35,10 +35,10 @@ dtypes = {
 }
 
 # Leer el archivo CSV y asignar los nombres a las columnas
-P_Urbanos = pd.read_csv('C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Padrones Urbanos.csv',
+P_Urbanos = pd.read_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Padrones Urbanos.csv',
 sep=',', encoding='cp1252', header=None, names=Variables, dtype={4: str, 5: str}  )
 
-Dic_Cat = pd.read_csv('C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Diccionario variables catastro.csv', sep=';', encoding='latin1')
+Dic_Cat = pd.read_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Diccionario variables catastro.csv', sep=';', encoding='latin1')
 
 # Mostrar las primeras filas del archivo
 P_Urbanos.head(8)
@@ -73,8 +73,8 @@ resultado_Cat_Per=filtro_dep.groupby(['anio','mes']).size().reset_index(name ='C
 # %%
 #Permisos Intendencia Montevideo
 # Leer el archivo CSV y asignar los nombres a las columnas
-Permisos = pd.read_csv('C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/permisos_construccion.csv', sep=';')
-Dic_Per = pd.read_csv('C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Diccionario variables permisos.csv', sep=';', encoding='latin1')
+Permisos = pd.read_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/permisos_construccion.csv', sep=';')
+Dic_Per = pd.read_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Diccionario variables permisos.csv', sep=';', encoding='latin1')
 
 Permisos.rename(columns={'padron': 'pad'}, inplace=True)
 # Mostrar las primeras filas del archivo
@@ -124,7 +124,7 @@ from dbfread import DBF
 import pandas as pd
 
 # Ruta del archivo .dbf
-dbf_file = 'C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/v_ce_permisos_construccion_geom.dbf'
+dbf_file = 'C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/v_ce_permisos_construccion_geom.dbf'
 
 # Leer el archivo DBF
 dbf_table = DBF(dbf_file, encoding='latin1')
@@ -133,16 +133,16 @@ dbf_table = DBF(dbf_file, encoding='latin1')
 df = pd.DataFrame(iter(dbf_table))
 
 # Guardar el DataFrame como un archivo CSV
-df.to_csv('C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/v_ce_permisos_construccion_geom.csv', index=False, sep=';')
+df.to_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/v_ce_permisos_construccion_geom.csv', index=False, sep=';')
 
 #Levantar nuevo archivo descargado de la intendencia con catastro incorporado
-Cat_Permisos = pd.read_csv('C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
-Dic_Cat_Per = pd.read_csv('C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
+Cat_Permisos = pd.read_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
+Dic_Cat_Per = pd.read_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Diccionario_v_ce_permisos_construccion_geom.csv', sep=';', encoding='latin1')
 
 Cat_Permisos.head()
 
 #Levantar nuevo archivo descargado de la intendencia con catastro incorporado
-Cat_Permisos = pd.read_csv('C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
+Cat_Permisos = pd.read_csv('C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/v_ce_permisos_construccion_geom.csv', sep=';' , encoding='cp1252')
 
 # Convertir a formato datetime
 Cat_Permisos['FECHA_APRO'] = pd.to_datetime(df['FECHA_APRO'], format='%Y/%m/%d')
@@ -254,7 +254,7 @@ st.set_page_config(page_title=" ", layout="wide")
 
 # %%
 # Colocar la imagen en el encabezado de manera responsiva
-st.image("C:/Users/Nico/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Carátula.jpg", use_column_width='always')
+st.image("C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Carátula.jpg", use_column_width='always')
 
 st.subheader('Análisis descriptivo y comparativo')
 
@@ -508,9 +508,9 @@ with tab8:
     st.subheader('Mapa con los permisos otorgados.') 
     
     # Colocar la imagen en el encabezado de manera responsiva
-    st.image("C:/Users/Nico/Desktop/Python/Permisos_mon_1.png", use_column_width='always')
+    st.image("C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Permisos_mon_1.png", use_column_width='always')
        
     st.subheader('Mapa con los permisos otorgados, área concentrada.') 
     
     # Colocar la imagen en el encabezado de manera responsiva
-    st.image("C:/Users/Nico/Desktop/Python/Permisos_mon_2.png" , use_column_width='always')    
+    st.image("C:/Users/vfernand/Desktop/python-para-ciencia-de-datos/Proyectos/Proyecto Crey_VFern/data/Permisos_mon_2.png" , use_column_width='always')    
