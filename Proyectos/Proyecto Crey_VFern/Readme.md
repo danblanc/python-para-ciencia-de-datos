@@ -36,10 +36,12 @@ Para realizar este análisis se procedió a realizar diferentes tablas, resultan
 
 ### Como consecuencia de ese problema se cambio el objetivo de la investigación. 
 
-Se procedió a analizar otra base proveniente de la Intendencia Municipal de Montevideo, Permisos solicitados y aprobados con información de catastro. Esta base cuenta con más de 40000 registros y 15 variables.
+Se procedió a analizar otra base proveniente de la Intendencia Municipal de Montevideo, Permisos solicitados y aprobados con información de catastro. 
+Esta base cuenta con más de 40000 registros y 15 variables.
 
     Permisos solicitados y aprobados con información de catastro - Fuente: Intendencia Municipal de Montevideo - 
-    https://intgis.montevideo.gub.uy/sit/php/common/datos/generar_zip2.php?nom_tab=v_mdg_parcelas_geom&tipo=gis se encuentra en la carpeta data.
+    https://intgis.montevideo.gub.uy/sit/php/common/datos/generar_zip2.php?nom_tab=v_mdg_parcelas_geom&tipo=gis,
+    se encuentra en la carpeta data.
 
 ### Se realizaron los ajustes necesarios para analizar la información contenida en esta base (conversión de datos, reecateorizaciones, cálculo de días de demora entre que se inicia el trámite y se aprueba, etc.)
 
@@ -48,46 +50,47 @@ Se procedió a analizar otra base proveniente de la Intendencia Municipal de Mon
 
 ### Cuadros :
 
-   **Bases:** 
+**Bases:** 
     
-    En la primera pestaña los links a las tres bases y diccionario de las variables donde se pueden seleccionar de a una y descargar. (No se aplican filtros son bases completas)
+En la primera pestaña los links a las tres bases y diccionario de las variables donde se pueden seleccionar de a una y descargar.
+(No se aplican filtros son bases completas)
 
-   **Análisis por año y mes:**
+**Análisis por año y mes:**
 
-    En la segunda pestaña un cuadro comparativo con la cantidad de registros por año para las tres bases utilizadas. 
+En la segunda pestaña un cuadro comparativo con la cantidad de registros por año para las tres bases utilizadas. 
 
 ---
 
 ### Gráficos :
 
-   **Régimen:** 
+**Régimen:** 
 
-    1. Cantidad de registros por año y régimen. Muestra la información de la cantidad de registros por año y régimen de propiedad (común, propiedad horizontal y sin código de régimen)
+1. Cantidad de registros por año y régimen. Muestra la información de la cantidad de registros por año y régimen de propiedad (común, propiedad horizontal y sin código de régimen)
 
-   **Tipo de obra:** 
+**Tipo de obra:** 
 
-    2. Área de edificación por tipo de construcción. Muestra el área de edificación por tipo de construcción (Obra nueva, reforma, regularización, demolición, incorporación a propiedad horizontal, sin tipo de obra definido y otros), pero a la vez muestra el destino de esa construcción, si es vivienda, industria, comercio, sin destino definido o varios destinos. 
+2. Área de edificación por tipo de construcción. Muestra el área de edificación por tipo de construcción (Obra nueva, reforma, regularización, demolición, incorporación a propiedad horizontal, sin tipo de obra definido y otros), pero a la vez muestra el destino de esa construcción, si es vivienda, industria, comercio, sin destino definido o varios destinos. 
 
-   **Categoría de la Construcción:** 
+**Categoría de la Construcción:** 
 
-    3. Cantidad por Categoría.Muestra la cantidad de registros por categoría de la construcción, economico, , mediano, suntuoso y desconosido. Aquí se aprecia que a partir de 2023 no está actualizada esta información.  
+3. Cantidad por Categoría.Muestra la cantidad de registros por categoría de la construcción, economico, , mediano, suntuoso y desconosido. Aquí se aprecia que a partir de 2023 no está actualizada esta información.  
 
-   **Destino por Año:**
+**Destino por Año:**
 
-    4. Cantidad por año y destino. Muestra la cantidad de registros por destino de la construcción, pero por año, y la información es desde 1997 a la fecha. 
+4. Cantidad por año y destino. Muestra la cantidad de registros por destino de la construcción, pero por año, y la información es desde 1997 a la fecha. 
 
-   **Tiempos de Demora:** 
+**Tiempos de Demora:** 
 
-    5. Promedio de tiempos de demora por año. Muestra la evolución del promedio de tiempo de demora entre que se solicita el permiso y se aprueba, desde 1997 a la fecha. Aqui observamos que los tiempos de demora en los primeros años es muy superior a la que hay hoy en día.
+5. Promedio de tiempos de demora por año. Muestra la evolución del promedio de tiempo de demora entre que se solicita el permiso y se aprueba, desde 1997 a lafecha.Aqui observamos que los tiempos de demora en los primeros años es muy superior a la que hay hoy en día.
 
 ---
 
 ### Mapa :
 
-   **Mapa de Montevideo:** 
+**Mapa de Montevideo:** 
 
-    Finalmente se presentan mapas de la ciudad de Montevideo como la consentración de los permisos aprobados desde 1997 a la fecha.
-    Se utilizaron imagenes ya que al subir los shape pesaba mucho y se volvía muy largo el proceso. 
+Finalmente se presentan mapas de la ciudad de Montevideo como la consentración de los permisos aprobados desde 1997 a la fecha.
+Se utilizaron imagenes ya que al subir los shape pesaba mucho y se volvía muy largo el proceso. 
     
 ---
 
