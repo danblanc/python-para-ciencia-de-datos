@@ -17,10 +17,12 @@ Al realizar diferentes combinaciones de filtros, es posible comparar informació
 
 #### Ejemplo
 Filtros: Año=2023, Mes=10, Nivel=DIVISION, Región=TOTAL_PAIS , Variación mensual=1
+
 Resultado: 
-    - 1. Tabla de datos con dos registros de las divisiones Ropa y Calzado y Transporte. Son las divisiones que tienen una variación positiva >= 1
-    - 2. Grafica de variación Anual de cada división entre los meses 10(filtro) de los años 2022 2023 y 2024.
-    - 3. Grafica de variación Mensual de cada división entre todos los meses del año 2023(filtro).
+
+1. Tabla de datos con dos registros de las divisiones Ropa y Calzado y Transporte. Son las divisiones que tienen una variación positiva >= 1
+2. Grafica de variación Anual de cada división entre los meses 10(filtro) de los años 2022 2023 y 2024.
+3. Grafica de variación Mensual de cada división entre todos los meses del año 2023(filtro).
 
 
 ### Equipo de Proyecto
