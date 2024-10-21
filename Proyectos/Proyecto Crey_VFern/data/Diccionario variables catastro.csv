@@ -1,0 +1,16 @@
+Variable;Tipo;Definición
+cod_reg;object;Código de Régimen
+cod_dep;object;Código de Departamento
+cod_loc;object;Código de Localidad
+pad;int64;Padrón
+block;object;Block
+EP;object;Entre Piso
+uni;int64;Unidad o Apartamento
+sup_predio;int64;Superficie del Predio
+sup_edificada;int64;Superficie Edificada
+V_cat_terreno;int64;Valor Catastral del Terreno
+V_cat_mejoras;int64;Valor Catastral de Mejoras
+V_cat_total;int64;Valor Catastral Total
+V_impuestos;int64;Valor de  Impuestos
+Fecha_UDJ;object;Fecha última declaración jurada
+Vigencia_UDJ;object;Vigencia última declaración jurada
